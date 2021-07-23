@@ -12,7 +12,8 @@
   "main": "app.js",
   "devDependencies": {},
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "build": "npm start"
   },
   "repository": {
     "type": "git",
