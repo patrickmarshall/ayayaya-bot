@@ -47,4 +47,4 @@ bot.on('video', ctx => {
     }
 })
 
-bot.launch()
+bot.startPolling()
