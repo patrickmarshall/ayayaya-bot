@@ -27,8 +27,11 @@ bot.hears((msg,ctx) => {
 })
 
 bot.on('video', ctx => {
-    console.log(ctx)
-    bot.telegram.forwardMessage(process.env.GROUP_J, ctx.chat.id, ctx.message.message_id, {})
+    if (ctx.from.id != process.env.MY_ACCOUNT) {
+        bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
+    } else {
+        bot.telegram.forwardMessage(process.env.GROUP_J, ctx.chat.id, ctx.message.message_id, {})
+    }
 })
 
 bot.launch()
