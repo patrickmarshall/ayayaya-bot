@@ -57,7 +57,7 @@ bot.hears((msg,ctx) => {
 })
 
 bot.on('video', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT) {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.id == process.env.GROUP_ANABEL_BAPAK_BAPAK) {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
