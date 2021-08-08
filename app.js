@@ -20,6 +20,7 @@ bot.command('start', ctx => {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         console.log(ctx)
+        bot.telegram.sendMessage(ctx.chat.id, "Hellow Master 🙏🏻", {})
     }
 })
 
@@ -28,10 +29,11 @@ bot.command('who', ctx => {
 })
 
 var chatCtx
+var pathname
 
 bot.hears((msg,ctx) => {
-    if (ctx.chat.id == process.env.GROUP_ANABEL_BAPAK_BAPAK) {
-        // anabel bapak bapak
+    if (ctx.chat.type == "group") {
+        // do nothing
     } else {
         if (ctx.from.id != process.env.MY_ACCOUNT) {
             bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
@@ -57,7 +59,7 @@ bot.hears((msg,ctx) => {
 })
 
 bot.on('video', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.id == process.env.GROUP_ANABEL_BAPAK_BAPAK) {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group") {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
@@ -79,6 +81,20 @@ bot.on('video', ctx => {
     }
 })
 
+bot.on('photo', ctx => {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group") {
+        bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
+    } else {
+        chatCtx = ctx
+        bot.telegram.getFileLink(ctx.message.photo[2].file_id).then((url) => {
+            var photo_url = `https://api.telegram.org${url.pathname}`
+            ctx.replyWithPhoto({url: photo_url})
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+})
+
 bot.action('J', _ => {
     bot.telegram.forwardMessage(process.env.GROUP_J, chatCtx.chat.id, chatCtx.message.message_id, {})
 })
@@ -94,5 +110,9 @@ bot.action('J_send', _ => {
 bot.action('ANABEL_send', _ => {
     bot.telegram.sendMessage(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.text, {})
 })
+
+// bot.action('J_send_images', _ => {
+
+// })
 
 bot.startPolling()
