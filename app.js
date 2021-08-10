@@ -16,11 +16,14 @@ expressApp.listen(port, () => {
 });
 
 bot.command('start', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT) {
-        bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
-    } else {
+    if (ctx.from.id == process.env.MY_ACCOUNT ) {
         console.log(ctx)
         bot.telegram.sendMessage(ctx.chat.id, "Hellow Master 🙏🏻", {})
+    } else {
+        console.log(ctx)
+        if (ctx.chat.type != "group" || ctx.chat.type != "supergroup") {
+            bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
+        }
     }
 })
 
@@ -32,7 +35,7 @@ var chatCtx
 var pathname
 
 bot.hears((msg,ctx) => {
-    if (ctx.chat.type == "group") {
+    if (ctx.chat.type == "group" || ctx.chat.type == "supergroup") {
         // do nothing
     } else {
         if (ctx.from.id != process.env.MY_ACCOUNT) {
@@ -59,7 +62,7 @@ bot.hears((msg,ctx) => {
 })
 
 bot.on('video', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group") {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group" || ctx.chat.type == "supergroup") {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
@@ -82,7 +85,7 @@ bot.on('video', ctx => {
 })
 
 bot.on('photo', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group") {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group" || ctx.chat.type == "supergroup") {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
