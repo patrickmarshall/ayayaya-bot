@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Telegraf } = require('telegraf')
+const { Telegraf, Markup } = require('telegraf')
 const express = require("express");
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -16,11 +16,11 @@ expressApp.listen(port, () => {
 });
 
 bot.command('start', ctx => {
+    console.log(ctx.chat.type)
+    // console.log(ctx)
     if (ctx.from.id == process.env.MY_ACCOUNT ) {
-        console.log(ctx)
         bot.telegram.sendMessage(ctx.chat.id, "Hellow Master 🙏🏻", {})
     } else {
-        console.log(ctx)
         if (ctx.chat.type != "group" || ctx.chat.type != "supergroup") {
             bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
         }
@@ -33,9 +33,13 @@ bot.command('who', ctx => {
 
 var chatCtx
 var pathname
+var inline_keyboard_send = [[{text: "J", callback_data: `J_send`, index: 34024923490230324932},
+                            {text: "ANABEL BAPAK BAPAK",callback_data: `ANABEL_send`}]]
+var inline_menu = [[{text: "J", callback_data: `J_forward`},
+                    {text: "ANABEL BAPAK BAPAK", callback_data: `ANABEL_forward`}]]
 
 bot.hears((msg,ctx) => {
-    if (ctx.chat.type == "group" || ctx.chat.type == "supergroup") {
+    if (ctx.chat.type.includes("group")) {
         // do nothing
     } else {
         if (ctx.from.id != process.env.MY_ACCOUNT) {
@@ -44,17 +48,7 @@ bot.hears((msg,ctx) => {
             chatCtx = ctx
             bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
                 reply_markup: {
-                    inline_keyboard: [
-                        [{
-                                text: "J",
-                                callback_data: `J_send`
-                            },
-                            {
-                                text: "ANABEL BAPAK BAPAK",
-                                callback_data: `ANABEL_send`
-                            }
-                        ]
-                    ]
+                    inline_keyboard: inline_keyboard_send
                 }
             })
         }
@@ -62,30 +56,20 @@ bot.hears((msg,ctx) => {
 })
 
 bot.on('video', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group" || ctx.chat.type == "supergroup") {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type.includes("group")) {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
         bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
             reply_markup: {
-                inline_keyboard: [
-                    [{
-                            text: "J",
-                            callback_data: `J`
-                        },
-                        {
-                            text: "ANABEL BAPAK BAPAK",
-                            callback_data: `ANABEL`
-                        }
-                    ]
-                ]
+                inline_keyboard: inline_menu
             }
         })
     }
 })
 
 bot.on('photo', ctx => {
-    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type == "group" || ctx.chat.type == "supergroup") {
+    if (ctx.from.id != process.env.MY_ACCOUNT && ctx.chat.type.includes("group")) {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
@@ -98,24 +82,25 @@ bot.on('photo', ctx => {
     }
 })
 
-bot.action('J', _ => {
+bot.action('J_forward', ctx => {
     bot.telegram.forwardMessage(process.env.GROUP_J, chatCtx.chat.id, chatCtx.message.message_id, {})
+    ctx.editMessageText("Udah diforward!", {})
 })
 
-bot.action('ANABEL', _ => {
+bot.action('ANABEL_forward', ctx => {
     bot.telegram.forwardMessage(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.chat.id, chatCtx.message.message_id, {})
+    ctx.editMessageText("Udah diforward!", {})
 })
 
-bot.action('J_send', _ => {
+bot.action('J_send', ctx => {
+    console.log(ctx)
     bot.telegram.sendMessage(process.env.GROUP_J, chatCtx.message.text, {})
+    ctx.editMessageText("Udah dikirim!", {})
 })
 
-bot.action('ANABEL_send', _ => {
+bot.action('ANABEL_send', ctx => {
     bot.telegram.sendMessage(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.text, {})
+    ctx.editMessageText("Udah dikirim!", {})
 })
-
-// bot.action('J_send_images', _ => {
-
-// })
 
 bot.startPolling()
