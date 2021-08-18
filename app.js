@@ -45,6 +45,7 @@ bot.hears((msg,ctx) => {
         if (ctx.from.id != process.env.MY_ACCOUNT) {
             bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
         } else {
+            console.log(ctx)
             chatCtx = ctx
             bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
                 reply_markup: {
@@ -99,10 +100,10 @@ bot.action('ANABEL_forward', ctx => {
 })
 
 bot.action('J_send', ctx => {
+    console.log(chatCtx.message)
     if (typeof chatCtx.message.video !== "undefined") {
         bot.telegram.sendVideo(process.env.GROUP_J, chatCtx.message.video.file_id, {caption: chatCtx.message.caption})
-    } else if (typeof chatCtx.message.photo[chatCtx.message.photo.length - 1] !== undefined) {
-        console.log(chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id)
+    } else if (typeof chatCtx.message.photo !== "undefined") {
         bot.telegram.sendPhoto(process.env.GROUP_J, chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id, {caption: chatCtx.message.caption})
     } else {
         bot.telegram.sendMessage(process.env.GROUP_J, chatCtx.message.text, {})
@@ -113,8 +114,7 @@ bot.action('J_send', ctx => {
 bot.action('ANABEL_send', ctx => {
     if (typeof chatCtx.message.video !== "undefined") {
         bot.telegram.sendVideo(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.video.file_id, {caption: chatCtx.message.caption})
-    } else if (typeof chatCtx.message.photo[chatCtx.message.photo.length - 1] !== undefined) {
-        console.log(chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id)
+    } else if (typeof chatCtx.message.photo !== "undefined") {
         bot.telegram.sendPhoto(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id, {caption: chatCtx.message.caption})
     } else {
         bot.telegram.sendMessage(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.text, {})
