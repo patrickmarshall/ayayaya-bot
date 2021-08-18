@@ -62,7 +62,7 @@ bot.on('video', ctx => {
         chatCtx = ctx
         bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
             reply_markup: {
-                inline_keyboard: inline_menu
+                inline_keyboard: inline_keyboard_send
             }
         })
     }
@@ -73,12 +73,18 @@ bot.on('photo', ctx => {
         bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         chatCtx = ctx
-        bot.telegram.getFileLink(ctx.message.photo[2].file_id).then((url) => {
-            var photo_url = `https://api.telegram.org${url.pathname}`
-            ctx.replyWithPhoto({url: photo_url})
-        }).catch((err) => {
-            console.log(err)
+        bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
+            reply_markup: {
+                inline_keyboard: inline_keyboard_send
+            }
         })
+        // No need to download now
+        // bot.telegram.getFileLink(ctx.message.photo[ctx.message.photo.length - 1].file_id).then((url) => {
+        //     var photo_url = `https://api.telegram.org${url.pathname}`
+        //     ctx.replyWithPhoto({url: photo_url})
+        // }).catch((err) => {
+        //     console.log(err)
+        // })
     }
 })
 
@@ -93,13 +99,26 @@ bot.action('ANABEL_forward', ctx => {
 })
 
 bot.action('J_send', ctx => {
-    console.log(ctx)
-    bot.telegram.sendMessage(process.env.GROUP_J, chatCtx.message.text, {})
+    if (typeof chatCtx.message.video !== "undefined") {
+        bot.telegram.sendVideo(process.env.GROUP_J, chatCtx.message.video.file_id, {caption: chatCtx.message.caption})
+    } else if (typeof chatCtx.message.photo[chatCtx.message.photo.length - 1] !== undefined) {
+        console.log(chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id)
+        bot.telegram.sendPhoto(process.env.GROUP_J, chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id, {caption: chatCtx.message.caption})
+    } else {
+        bot.telegram.sendMessage(process.env.GROUP_J, chatCtx.message.text, {})
+    }
     ctx.editMessageText("Udah dikirim!", {})
 })
 
 bot.action('ANABEL_send', ctx => {
-    bot.telegram.sendMessage(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.text, {})
+    if (typeof chatCtx.message.video !== "undefined") {
+        bot.telegram.sendVideo(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.video.file_id, {caption: chatCtx.message.caption})
+    } else if (typeof chatCtx.message.photo[chatCtx.message.photo.length - 1] !== undefined) {
+        console.log(chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id)
+        bot.telegram.sendPhoto(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.photo[chatCtx.message.photo.length - 1].file_id, {caption: chatCtx.message.caption})
+    } else {
+        bot.telegram.sendMessage(process.env.GROUP_ANABEL_BAPAK_BAPAK, chatCtx.message.text, {})
+    }
     ctx.editMessageText("Udah dikirim!", {})
 })
 
