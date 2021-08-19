@@ -26,7 +26,7 @@ bot.command('start', ctx => {
     }
 })
 
-bot.command('getquote', ctx => {
+bot.command('pemudatersesat', ctx => {
     bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
         reply_markup: {
             inline_keyboard: [[{ text: "Moslem", callback_data: `moslem` },
