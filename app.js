@@ -21,7 +21,7 @@ bot.command('start', ctx => {
         bot.telegram.sendMessage(ctx.chat.id, "Hellow Master 🙏🏻", {})
     } else {
         if (!ctx.chat.type.includes("group")) {
-            bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
+            bot.telegram.sendMessage(ctx.chat.id, "Hai namaku ayaya dan aku adalah bot terkeren sepanjang masa.", {})
         }
     }
 })
