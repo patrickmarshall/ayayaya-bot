@@ -27,7 +27,7 @@ bot.command('start', ctx => {
 })
 
 bot.command('pemudatersesat', ctx => {
-    bot.telegram.sendMessage(ctx.chat.id, "Pilih ke grup mana", {
+    bot.telegram.sendMessage(ctx.chat.id, "Choose y̶o̶u̶r̶ religion", {
         reply_markup: {
             inline_keyboard: [[{ text: "Moslem", callback_data: `moslem` },
             { text: "Christian", callback_data: `christian` }],
