@@ -37,6 +37,10 @@ bot.command('pemudatersesat', ctx => {
     })
 })
 
+bot.command('vote', ctx => {
+    getSlidoToken()
+})
+
 bot.action('moslem', ctx => {
     moslem(ctx.callbackQuery.message.chat.id)
     ctx.deleteMessage()
@@ -50,7 +54,7 @@ bot.action('buddha', ctx => {
     ctx.deleteMessage()
 })
 bot.action('random', ctx => {
-    switch(Math.random() * 3){
+    switch (Math.random() * 3) {
         case 0:
             buddha(ctx.callbackQuery.message.chat.id)
             break
@@ -86,6 +90,66 @@ function moslem(chat_id) {
             var message = `🕋☪🕌 tersesat~ oh tersesaat~ astagfi?..rullah 🕋☪🕌 \n\n${data.data[0].text}\n${data.data[1].text} \n\nQS ${data.data[0].surah.englishName}:${data.data[0].numberInSurah}`
             bot.telegram.sendMessage(chat_id, message, {})
         })
+}
+
+function getSlidoToken() {
+    new Promise((resolve) => setTimeout(resolve, 500))
+        .then((_) =>
+            fetch("https://app.sli.do/api/v0.5/events/88d26f91-0eab-4af8-a74e-2c4c6eeb195f/auth?attempt=1", {
+                "headers": {
+                    "accept": "application/json, text/plain, */*",
+                    "accept-language": "en-US,en;q=0.9",
+                    "cache-control": "no-cache, no-store",
+                    "content-type": "application/json;charset=UTF-8",
+                    "sec-ch-ua": "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "x-client-id": "rTRdrE0EAKWkokN",
+                    "x-slidoapp-version": "SlidoParticipantApp/11.43.1 (web)"
+                },
+                "referrer": "https://app.sli.do/event/ur74ymwf/live/questions",
+                "referrerPolicy": "strict-origin-when-cross-origin",
+                "body": "{\"initialAppViewer\":\"browser--other\",\"granted_consents\":[\"StoreEssentialCookies\",\"StoreAnalyticalCookies\"]}",
+                "method": "POST",
+                "mode": "cors",
+                "credentials": "omit"
+            })
+        )
+        .then((r) => r.json())
+        .then((r) => {
+            let token = r.access_token
+            console.log(token)
+        })
+}
+
+function vote(bearer) {
+    new Promise((resolve) => setTimeout(resolve, 2000))
+        .then((_) =>
+            fetch("https://app.sli.do/api/v0.5/events/88d26f91-0eab-4af8-a74e-2c4c6eeb195f/questions/40213496/like", {
+                "headers": {
+                    "accept": "application/json, text/plain, */*",
+                    "accept-language": "en-US,en;q=0.9",
+                    "authorization": `Bearer ${bearer}`,
+                    "cache-control": "no-cache, no-store",
+                    "content-type": "application/json;charset=UTF-8",
+                    "sec-ch-ua": "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "x-client-id": "rTRdrE0EAKWkokN",
+                    "x-slidoapp-version": "SlidoParticipantApp/11.43.1 (web)",
+                    "cookie": "_ga=GA1.2.2050318450.1630094122; _gid=GA1.2.326193600.1630094122; Slido.EventAuthTokens=\"88d26f91-0eab-4af8-a74e-2c4c6eeb195f,06ed9e76b4b4007bf4200b15c14cd8f242d39857\"; __exponea_etc__=da51a032-69c5-4665-a842-2b7fdb1a100d; __exponea_time2__=-0.1868896484375; AWSALB=Bu8TiHqU/OFnvZ1Wf4UjzlJDGq//qYwc10DwfrkRcAwnSkoDAT00pqCwoxcY7sFm5b8CwFMjSQuNiDNxHyBEZ4C4UZzPwRsO4ZwzeOVDGvEYWETTjFNU2fOihB0p; AWSALBCORS=Bu8TiHqU/OFnvZ1Wf4UjzlJDGq//qYwc10DwfrkRcAwnSkoDAT00pqCwoxcY7sFm5b8CwFMjSQuNiDNxHyBEZ4C4UZzPwRsO4ZwzeOVDGvEYWETTjFNU2fOihB0p"
+                },
+                "referrer": "https://app.sli.do/event/ur74ymwf/live/questions",
+                "referrerPolicy": "strict-origin-when-cross-origin",
+                "body": "{\"score\":1}",
+                "method": "POST",
+                "mode": "cors"
+            })
+        )
 }
 
 bot.command('who', ctx => {
