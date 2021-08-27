@@ -92,6 +92,8 @@ function moslem(chat_id) {
         })
 }
 
+// https://app.sli.do/api/v0.5/app/events?hash=ur74ymwf
+
 function getSlidoToken() {
     new Promise((resolve) => setTimeout(resolve, 500))
         .then((_) =>
