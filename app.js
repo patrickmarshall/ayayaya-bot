@@ -37,10 +37,6 @@ bot.command('pemudatersesat', ctx => {
     })
 })
 
-bot.command('vote', ctx => {
-    getSlidoToken()
-})
-
 bot.action('moslem', ctx => {
     moslem(ctx.callbackQuery.message.chat.id)
     ctx.deleteMessage()
@@ -92,12 +88,32 @@ function moslem(chat_id) {
         })
 }
 
-// https://app.sli.do/api/v0.5/app/events?hash=ur74ymwf
+bot.command('vote', ctx => {
+    let messages = ctx.message.text.split(" ")
+    if (!messages[1]) {
+        ctx.reply(`Please provide Event Code! \nex: https://app.sli.do/event/ur74ymwf/live/questions\n"ur74ymwf" is your Event Code`)
+    } else if (!messages[2]) {
+        ctx.reply(`Please provide Question Id! \nYou can get your question id by inspecting network when you click on like icon. \nex: https://app.sli.do/api/v0.5/events/88d26f91-0eab-4af8-a74e-2c4c6eeb195f/questions/40213496/like \n"40213496" is your question id`)
+    } else if (!messages[3]) {
+        ctx.reply("Please provide your like number, between 1 - 50")
+    } else {
+        getEventId(messages[1], messages[2], messages[3])
+    }
+})
 
-function getSlidoToken() {
+function getEventId(hash, question_id, times) {
+    getData(`https://app.sli.do/api/v0.5/app/events?hash=${hash}`)
+        .then(data => {
+            for (let i = 0; i < times; i++) {
+                getToken(data.uuid, question_id)
+              }
+        })
+}
+
+function getToken(event_id, question_id) {
     new Promise((resolve) => setTimeout(resolve, 500))
         .then((_) =>
-            fetch("https://app.sli.do/api/v0.5/events/88d26f91-0eab-4af8-a74e-2c4c6eeb195f/auth?attempt=1", {
+            fetch(`https://app.sli.do/api/v0.5/events/${event_id}/auth?attempt=1`, {
                 "headers": {
                     "accept": "application/json, text/plain, */*",
                     "accept-language": "en-US,en;q=0.9",
@@ -121,15 +137,14 @@ function getSlidoToken() {
         )
         .then((r) => r.json())
         .then((r) => {
-            let token = r.access_token
-            console.log(token)
+            vote(event_id, r.access_token, question_id)
         })
 }
 
-function vote(bearer) {
+function vote(event_id, bearer, question_id) {
     new Promise((resolve) => setTimeout(resolve, 2000))
         .then((_) =>
-            fetch("https://app.sli.do/api/v0.5/events/88d26f91-0eab-4af8-a74e-2c4c6eeb195f/questions/40213496/like", {
+            fetch(`https://app.sli.do/api/v0.5/events/${event_id}/questions/${question_id}/like`, {
                 "headers": {
                     "accept": "application/json, text/plain, */*",
                     "accept-language": "en-US,en;q=0.9",
@@ -169,7 +184,7 @@ bot.hears((msg, ctx) => {
     if (ctx.chat.type.includes("group")) {
 
     } else if (ctx.from.id != process.env.MY_ACCOUNT) {
-        bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
+        // bot.telegram.sendMessage(ctx.chat.id, "Lu siapa anjeng", {})
     } else {
         console.log(ctx)
         chatCtx = ctx
