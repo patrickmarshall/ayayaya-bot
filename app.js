@@ -97,20 +97,31 @@ bot.command('vote', ctx => {
     } else if (!messages[3]) {
         ctx.reply("Please provide your like number, between 1 - 50")
     } else {
-        getEventId(messages[1], messages[2], messages[3])
+        getEventId(ctx, messages[1], messages[2], messages[3])
     }
 })
 
-function getEventId(hash, question_id, times) {
+var counter = [0]
+
+function getEventId(ctx, hash, question_id, times) {
     getData(`https://app.sli.do/api/v0.5/app/events?hash=${hash}`)
         .then(data => {
+            let index = counter.length
+            counter.push(0)
             for (let i = 0; i < times; i++) {
-                getToken(data.uuid, question_id)
-              }
+                var end = false
+                if (i == times - 1) {
+                    end = true
+                }
+                getToken(data.uuid, question_id, index, ctx, end)
+            }
+        })
+        .catch(error => {
+            console.log(error)
         })
 }
 
-function getToken(event_id, question_id) {
+function getToken(event_id, question_id, index, ctx, end) {
     new Promise((resolve) => setTimeout(resolve, 500))
         .then((_) =>
             fetch(`https://app.sli.do/api/v0.5/events/${event_id}/auth?attempt=1`, {
@@ -137,11 +148,14 @@ function getToken(event_id, question_id) {
         )
         .then((r) => r.json())
         .then((r) => {
-            vote(event_id, r.access_token, question_id)
+            vote(event_id, r.access_token, question_id, index, ctx, end)
+        })
+        .catch(error => {
+            
         })
 }
 
-function vote(event_id, bearer, question_id) {
+function vote(event_id, bearer, question_id, index, ctx, end) {
     new Promise((resolve) => setTimeout(resolve, 2000))
         .then((_) =>
             fetch(`https://app.sli.do/api/v0.5/events/${event_id}/questions/${question_id}/like`, {
@@ -167,6 +181,22 @@ function vote(event_id, bearer, question_id) {
                 "mode": "cors"
             })
         )
+        .then((_) => {
+            counter[index] += 1
+            if (end) {
+                sleep(2000).then(() => {
+                    ctx.reply(`Success ${counter[index]} times.`, { reply_to_message_id: ctx.message.message_id })
+                })
+            }
+        })
+        .catch(error => {
+            console.log(error)
+            if (end) {
+                sleep(2000).then(() => {
+                    ctx.reply(`Success ${counter[index]} times.`, { reply_to_message_id: ctx.message.message_id })
+                })
+            }
+        })
 }
 
 bot.command('who', ctx => {
