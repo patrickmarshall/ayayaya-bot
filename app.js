@@ -9,6 +9,7 @@ const { pemudatersesat, christian, buddha, moslem, random } = require("./feature
 const { sendReminder, register, updateFixtures, checkDifferences } = require("./features/reminder")
 const { greetings } = require("./features/greetings")
 const { vote } = require("./features/voters")
+const { getData, sleep, addZero, msToTime } = require("./core/helper")
 
 expressApp.get("/", (req, res) => {
     res.send("Working...")
@@ -26,8 +27,8 @@ bot.command('start', ctx => {
 
 updateFixtures(null, bot)
 
-bot.command('test', ctx => {
-    checkDifferences()
+bot.command('nextfixture', ctx => {
+    checkDifferences(true)
 })
 
 bot.command('updatefixtures', ctx => {

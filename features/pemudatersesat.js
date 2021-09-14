@@ -1,4 +1,4 @@
-const { getData, sleep, addZero, msToTime} = require("../core/helper")
+const { getData, sleep, addZero, msToTime } = require("../core/helper")
 
 function pemudatersesat(ctx) {
     ctx.reply("Choose y̶o̶u̶r̶ religion", {

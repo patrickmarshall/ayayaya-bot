@@ -11,7 +11,7 @@ var listFixtures
 const hourInMilisecond = 3600000
 const minuteInMilisecond = 60000
 
-cron.schedule('*/15 * * * *', () =>  {
+cron.schedule('*/15 * * * *', () => {
     checkDifferences()
 })
 
@@ -49,7 +49,7 @@ function getFixtures(token) {
         "body": null,
         "method": "GET",
         "mode": "cors"
-        })
+    })
         .then((r) => r.json())
         .then((r) => {
             if (typeof r.FixtureListResponse.response !== "undefined") {
@@ -62,17 +62,26 @@ function getFixtures(token) {
     )
 }
 
-function checkDifferences() {
+function checkDifferences(demand = false) {
     listFixtures = fixtures_db.get("list")
 
     sleep(2000)
     const diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
-    
+
+    if (diff <= 0) {
+        listFixtures.splice(0, 1)
+        fixtures_db.set("list", listFixtures)
+    }
+
     if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
-        sendReminder(1, listFixtures[0])
+        sendReminder("1 jam", listFixtures[0])
     } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
-        sendReminder(12, listFixtures[0])
-    } 
+        sendReminder("12 jam", listFixtures[0])
+    }
+
+    if (demand) {
+        sendReminder(msToTime(diff), listFixtures[0])
+    }
 }
 
 function sendReminder(time, fixture = listFixtures[0]) {
@@ -83,13 +92,13 @@ function sendReminder(time, fixture = listFixtures[0]) {
         if (!fixture.venuename_t.toLowerCase().includes("stadium")) {
             stadium += " Stadium"
         }
-        const hours = addZero(new Date(fixture.matchdate_tdt).getHours().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}))
-        const minutes = addZero(new Date(fixture.matchdate_tdt).getMinutes().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}))
+        const hours = addZero(new Date(fixture.matchdate_tdt).getHours().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
+        const minutes = addZero(new Date(fixture.matchdate_tdt).getMinutes().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
         copy_bot.telegram.sendMessage(
-            chatId, 
-            `📢 Teet teet teet~ ${time} jam sebelum Manchester United main~\n\n` + 
+            chatId,
+            `📢 Teet teet teet~ ${time} sebelum Manchester United main~\n\n` +
             `${fixture.competitionname_t}\n` +
-            `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` + 
+            `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` +
             `${stadium}\n` +
             `${hours}:${minutes} WIB`
         )
@@ -99,7 +108,7 @@ function sendReminder(time, fixture = listFixtures[0]) {
 function register(ctx) {
     var array = chat_db.get("list")
 
-    if(!array.includes(ctx.chat.id)) {
+    if (!array.includes(ctx.chat.id)) {
         chat_db.push("list", ctx.chat.id)
         ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main.")
     } else {
@@ -120,4 +129,4 @@ function updateFixtures(ctx, bot) {
     getFixtures(token)
 }
 
-module.exports = {getFixtures, sendReminder, register, updateFixtures, checkDifferences}
+module.exports = { getFixtures, sendReminder, register, updateFixtures, checkDifferences }
