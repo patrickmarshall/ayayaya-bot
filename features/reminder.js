@@ -2,7 +2,7 @@ const fetch = require("node-fetch")
 const cron = require('node-cron')
 const Database = require("easy-json-database");
 
-const { getData, sleep, addZero } = require("../core/helper")
+const { getData, sleep, addZero, msToTime } = require("../core/helper")
 
 var copy_bot
 
@@ -65,18 +65,19 @@ function getFixtures(token) {
 function checkDifferences() {
     listFixtures = fixtures_db.get("list")
 
-    const diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime
-    
     sleep(2000)
+    const diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
+    
     if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
         sendReminder(1, listFixtures[0])
     } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
         sendReminder(12, listFixtures[0])
-    }
-    
+    } 
 }
 
 function sendReminder(time, fixture = listFixtures[0]) {
+    listChat = chat_db.get("list")
+
     listChat.forEach(chatId => {
         var stadium = fixture.venuename_t
         if (!fixture.venuename_t.toLowerCase().includes("stadium")) {
@@ -119,4 +120,4 @@ function updateFixtures(ctx, bot) {
     getFixtures(token)
 }
 
-module.exports = {getFixtures, sendReminder, register, updateFixtures}
+module.exports = {getFixtures, sendReminder, register, updateFixtures, checkDifferences}

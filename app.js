@@ -6,7 +6,7 @@ const express = require("express")
 const expressApp = express()
 
 const { pemudatersesat, christian, buddha, moslem, random } = require("./features/pemudatersesat")
-const { sendReminder, register, updateFixtures } = require("./features/reminder")
+const { sendReminder, register, updateFixtures, checkDifferences } = require("./features/reminder")
 const { greetings } = require("./features/greetings")
 const { vote } = require("./features/voters")
 
@@ -27,7 +27,7 @@ bot.command('start', ctx => {
 updateFixtures(null, bot)
 
 bot.command('test', ctx => {
-    sendReminder(12)
+    checkDifferences()
 })
 
 bot.command('updatefixtures', ctx => {
