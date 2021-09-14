@@ -62,8 +62,9 @@ function getFixtures(token) {
     )
 }
 
-function checkDifferences(demand = false) {
+function checkDifferences(ctx = null, demand = false) {
     listFixtures = fixtures_db.get("list")
+    listChat = chat_db.get("list")
 
     sleep(2000)
     const diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
@@ -74,20 +75,18 @@ function checkDifferences(demand = false) {
     }
 
     if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
-        sendReminder("1 jam", listFixtures[0])
+        sendReminder("1 jam", listFixtures[0], listChat)
     } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
-        sendReminder("12 jam", listFixtures[0])
+        sendReminder("12 jam", listFixtures[0], listChat)
     }
 
     if (demand) {
-        sendReminder(msToTime(diff), listFixtures[0])
+        sendReminder(msToTime(diff), listFixtures[0], [ctx.chat.id])
     }
 }
 
-function sendReminder(time, fixture = listFixtures[0]) {
-    listChat = chat_db.get("list")
-
-    listChat.forEach(chatId => {
+function sendReminder(time, fixture = listFixtures[0], _listChat) {
+    _listChat.forEach(chatId => {
         var stadium = fixture.venuename_t
         if (!fixture.venuename_t.toLowerCase().includes("stadium")) {
             stadium += " Stadium"

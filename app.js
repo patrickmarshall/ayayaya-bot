@@ -28,7 +28,7 @@ bot.command('start', ctx => {
 updateFixtures(null, bot)
 
 bot.command('nextfixture', ctx => {
-    checkDifferences(true)
+    checkDifferences(ctx, true)
 })
 
 bot.command('updatefixtures', ctx => {
