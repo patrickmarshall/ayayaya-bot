@@ -21,7 +21,15 @@ const chat_db = new Database("./chatlist.json", {
         interval: 24 * 60 * 60 * 1000,
         folder: './backups/'
     }
-});
+})
+
+const fixtures_db = new Database("./fixtures.json", {
+    snapshots: {
+        enabled: true,
+        interval: 24 * 60 * 60 * 1000,
+        folder: './backups/'
+    }
+})
 
 function getFixtures(token) {
     new Promise((resolve) => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchfixture/sid:2021~team:Team%20Level%2FFirst%20Team~isMU:true/0/60", {
@@ -45,7 +53,7 @@ function getFixtures(token) {
         .then((r) => r.json())
         .then((r) => {
             if (typeof r.FixtureListResponse.response !== "undefined") {
-                listFixtures = r.FixtureListResponse.response.docs
+                fixtures_db.set("list", r.FixtureListResponse.response.docs)
             }
         })
         .catch(error => {
@@ -55,6 +63,8 @@ function getFixtures(token) {
 }
 
 function checkDifferences() {
+    listFixtures = fixtures_db.get("list")
+
     const diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime
     
     sleep(2000)
