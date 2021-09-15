@@ -1,6 +1,6 @@
 const fetch = require("node-fetch")
 const cron = require('node-cron')
-const Database = require("easy-json-database");
+const Database = require("easy-json-database")
 
 const { getData, sleep, addZero, msToTime } = require("../core/helper")
 
@@ -57,7 +57,7 @@ function getFixtures(token) {
             }
         })
         .catch(error => {
-            console.log(error)
+            // console.log(error)
         })
     )
 }
