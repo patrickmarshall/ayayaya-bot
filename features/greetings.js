@@ -14,11 +14,19 @@ function help(ctx) {
     `/reminder - nyalain Manchester United match reminder\n` +
     `/nextfixture - pertandingan Manchester United terdekat\n` +
     `/playgame - dapatkan game game menarik\n` +
-    `/who - dapetin user id dan nama telegram kamu\n` +
     `/help - this\n\n` +
 
     `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`
+
     ctx.reply(text)
+
+    if (ctx.from.id == process.env.MY_ACCOUNT) {
+        ctx.reply(`~Admin command~\n\n` +
+        `/who - dapetin user id dan nama telegram kamu\n` +
+        `/updatehero - update database dota hero\n` +
+        `/updatefixtures - update database MU fixture`
+        )
+    }
 }
 
 function who(ctx) {
