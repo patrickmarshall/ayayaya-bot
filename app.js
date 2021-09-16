@@ -10,8 +10,9 @@ const { pemudatersesat, christian, buddha, moslem, random } = require("./feature
 const { hears, photo, video, animation, sticker, processQuery } = require("./features/forwarder")
 const { register, updateFixtures, checkDifferences } = require("./features/reminder")
 const { greetings, help, who } = require("./features/greetings")
-const { vote } = require("./features/voters")
 const { games, sendGames } = require("./features/game")
+const { vote } = require("./features/voters")
+const { updateDotaHeroes, randomhero } = require("./features/dota")
 
 
 expressApp.get("/", (req, res) => {
@@ -92,6 +93,18 @@ bot.command('vote', ctx => {
 })
 
 // End of Sli.do Voters
+
+// Start of Dota
+
+bot.command('updatehero', ctx => {
+    updateDotaHeroes(ctx)
+})
+
+bot.command('randomhero', ctx => {
+    randomhero(ctx)
+})
+
+// End of Dota
 
 // Start of Forwarder
 
