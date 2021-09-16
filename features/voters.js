@@ -1,4 +1,4 @@
-const { getData, sleep, addZero, msToTime } = require("../core/helper")
+const { getData, sleep } = require("../core/helper")
 const fetch = require("node-fetch")
 
 function vote(ctx) {

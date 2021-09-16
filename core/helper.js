@@ -16,6 +16,11 @@ function addZero(i) {
   return i;
 }
 
+function daysToString(date) {
+  const daysOfWeek = ['Sunday', 'Monday','Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  return daysOfWeek[date.getDay()]
+}
+
 function msToTime(s) {
   // let seconds = (ms / 1000).toFixed(1);
   // let minutes = (ms / (1000 * 60)).toFixed(1);
@@ -55,4 +60,4 @@ function msToTime(s) {
   return result
 }
 
-module.exports = { getData, sleep, addZero, msToTime }
+module.exports = { getData, sleep, addZero, msToTime, daysToString }

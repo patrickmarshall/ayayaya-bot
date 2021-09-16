@@ -2,7 +2,7 @@ const fetch = require("node-fetch")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 
-const { getData, sleep, addZero, msToTime } = require("../core/helper")
+const { sleep, addZero, msToTime, daysToString } = require("../core/helper")
 
 var copy_bot
 
@@ -91,15 +91,23 @@ function sendReminder(time, fixture = listFixtures[0], _listChat) {
         if (!fixture.venuename_t.toLowerCase().includes("stadium")) {
             stadium += " Stadium"
         }
+        const day = daysToString(new Date(fixture.matchdate_tdt))
         const hours = addZero(new Date(fixture.matchdate_tdt).getHours().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
         const minutes = addZero(new Date(fixture.matchdate_tdt).getMinutes().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
+
+        var dates = ""
+        if (time.includes("hari")) {
+            dates += `${day}, `
+        }
+        dates += `${hours}:${minutes} WIB`
+
         copy_bot.telegram.sendMessage(
             chatId,
             `📢 Teet teet teet~ ${time} sebelum Manchester United main~\n\n` +
             `${fixture.competitionname_t}\n` +
             `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` +
             `${stadium}\n` +
-            `${hours}:${minutes} WIB`
+            dates
         )
     })
 }
