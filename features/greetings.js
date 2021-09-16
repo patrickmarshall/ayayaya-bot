@@ -1,7 +1,5 @@
 
 function greetings(ctx) {
-    console.log(ctx.chat.type)
-    // console.log(ctx)
     if (ctx.from.id == process.env.MY_ACCOUNT) {
         ctx.reply("Hellow Master 🙏🏻")
     } else {
@@ -11,4 +9,23 @@ function greetings(ctx) {
     }
 }
 
-module.exports = { greetings }
+function help(ctx) {
+    var text = `/pemudatersesat - quote keren dari agama pilihan anda\n` +
+    `/reminder - nyalain Manchester United match reminder\n` +
+    `/nextfixture - pertandingan Manchester United terdekat\n` +
+    `/games - dapatkan game game menarik\n` +
+    `/who - dapetin user id dan nama telegram kamu\n` +
+    `/help - this\n\n` +
+
+    `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`
+    ctx.reply(text)
+}
+
+function who(ctx) {
+    ctx.reply(
+        `UserId: ${ctx.message.from.id}\n` + 
+        `Nama: ${ctx.message.from.first_name} ${ctx.message.from.last_name}`
+    )
+}
+
+module.exports = { greetings, help, who }

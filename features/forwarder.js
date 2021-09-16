@@ -32,7 +32,6 @@ function hears(ctx) {
     const group_list = chatlist_db.get("mutual_group_list")
     
     if (!group_list.some(group => group.id === ctx.chat.id) && ctx.chat.type.includes("group")) {
-        console.log("saving kk")
         chatlist_db.push("mutual_group_list", {"name": ctx.chat.title, "id": ctx.chat.id})
     }
 
@@ -77,6 +76,34 @@ function video(ctx) {
     }
 }
 
+function animation(ctx) {
+    if (ctx.chat.type.includes("group")) {
+
+    } else if (ctx.from.id != process.env.MY_ACCOUNT) {
+        // ctx.replyWithVideo(ctx.message.video.file_id, { caption: ctx.message.caption })
+    } else {
+        ctx.reply("Pilih ke grup mana", {
+            reply_markup: {
+                inline_keyboard: inline(ctx, "animation")
+            }
+        })
+    }
+}
+
+function sticker(ctx) {
+    if (ctx.chat.type.includes("group")) {
+
+    } else if (ctx.from.id != process.env.MY_ACCOUNT) {
+        // ctx.replyWithVideo(ctx.message.video.file_id, { caption: ctx.message.caption })
+    } else {
+        ctx.reply("Pilih ke grup mana", {
+            reply_markup: {
+                inline_keyboard: inline(ctx, "sticker")
+            }
+        })
+    }
+}
+
 function processQuery(bot, ctx) {
     const data = JSON.parse(jsonList[ctx.callbackQuery.data])
     const message = data.message.update
@@ -95,9 +122,19 @@ function processQuery(bot, ctx) {
                 bot.telegram.sendPhoto(data.object.id, message.message.photo[message.message.photo.length - 1].file_id, { caption: message.message.caption })
             }
             break
+        case "animation":
+            if (typeof message.message.animation !== "undefined") {
+                bot.telegram.sendAnimation(data.object.id, message.message.animation.file_id)
+            }
+            break
+        case "sticker":
+            if (typeof message.message.sticker !== "undefined") {
+                bot.telegram.sendSticker(data.object.id, message.message.sticker.file_id)
+            }
+            break
     }
 
     ctx.editMessageText("Udah dikirim!")
 }
 
-module.exports = { hears, photo, video, processQuery }
+module.exports = { hears, photo, video, animation, sticker, processQuery }

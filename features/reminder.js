@@ -57,7 +57,7 @@ function getFixtures(token) {
             }
         })
         .catch(error => {
-            // console.log(error)
+            console.log(error)
         })
     )
 }
@@ -128,4 +128,4 @@ function updateFixtures(ctx, bot) {
     getFixtures(token)
 }
 
-module.exports = { getFixtures, sendReminder, register, updateFixtures, checkDifferences }
+module.exports = { register, updateFixtures, checkDifferences }

@@ -5,12 +5,14 @@ const port = process.env.PORT || 3000
 const express = require("express")
 const expressApp = express()
 
+
 const { pemudatersesat, christian, buddha, moslem, random } = require("./features/pemudatersesat")
-const { sendReminder, register, updateFixtures, checkDifferences } = require("./features/reminder")
-const { greetings } = require("./features/greetings")
+const { hears, photo, video, animation, sticker, processQuery } = require("./features/forwarder")
+const { register, updateFixtures, checkDifferences } = require("./features/reminder")
+const { greetings, help, who } = require("./features/greetings")
 const { vote } = require("./features/voters")
-const { getData, sleep, addZero, msToTime } = require("./core/helper")
-const { hears, photo, video, processQuery } = require("./features/forwarder")
+const { games, sendGames } = require("./features/game")
+
 
 expressApp.get("/", (req, res) => {
     res.send("Working...")
@@ -20,9 +22,29 @@ expressApp.listen(port, () => {
     console.log(`Listening on port ${port}`)
 })
 
+// Start of Greetings
+
 bot.command('start', ctx => {
     greetings(ctx)
 })
+
+bot.command('help', ctx => {
+    help(ctx)
+})
+
+bot.command('who', ctx => {
+    who(ctx)
+})
+
+// End of Greetings
+
+// Start of Game
+
+bot.command('games', ctx => {
+    games(ctx)
+})
+
+// End of Game
 
 // Start of Manchester United Reminder
 
@@ -81,6 +103,14 @@ bot.on('video', ctx => {
     video(ctx)
 })
 
+bot.on('animation', ctx => {
+    animation(ctx)
+})
+
+bot.on('sticker', ctx => {
+    sticker(ctx)
+})
+
 bot.on('photo', ctx => {
     photo(ctx)
     // No need to download now
@@ -93,13 +123,13 @@ bot.on('photo', ctx => {
 })
 
 bot.on('callback_query', ctx => {
-    processQuery(bot, ctx)
+    if (ctx.callbackQuery?.message?.text && ctx.callbackQuery.message.text.includes("game")) {
+        sendGames(bot, ctx)
+    } else {
+        processQuery(bot, ctx)
+    }
 })
 
 // End of Forwarder
-
-bot.command('who', ctx => {
-    ctx.reply(`${ctx.message.from.first_name} ${ctx.message.from.last_name}`)
-})
 
 bot.startPolling()
