@@ -40,7 +40,7 @@ bot.command('who', ctx => {
 
 // Start of Game
 
-bot.command('games', ctx => {
+bot.command('playgame', ctx => {
     games(ctx)
 })
 
