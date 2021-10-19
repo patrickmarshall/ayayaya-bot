@@ -37,7 +37,8 @@ function moslem(ctx) {
 }
 
 function random(ctx) {
-    switch (Math.random() * 3) {
+    let ang = Math.floor(Math.random() * 3)
+    switch (ang) {
         case 0:
             buddha(ctx)
             break
