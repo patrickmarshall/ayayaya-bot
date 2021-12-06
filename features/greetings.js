@@ -15,7 +15,7 @@ function help(ctx) {
     `/nextfixture - pertandingan Manchester United terdekat\n` +
     `/playgame - dapatkan game game menarik\n` +
     `/lastmatch - hasil pertandingan terbaru Manchester United\n`+
-    `/matchupdates - nyalain update hasil pertandingan Manchester United\n`+
+    `/matchupdate - nyalain update hasil pertandingan Manchester United\n`+
     `/help - this\n\n` +
 
     `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`

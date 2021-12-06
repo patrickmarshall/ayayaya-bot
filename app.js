@@ -74,7 +74,7 @@ bot.command('lastmatch', ctx => {
     getLastMatch(ctx)
 })
 
-bot.command('matchupdates', ctx => {
+bot.command('matchupdate', ctx => {
     register_result(ctx)
 })
 
