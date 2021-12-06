@@ -13,6 +13,7 @@ const { greetings, help, who } = require("./features/greetings")
 const { games, sendGames } = require("./features/game")
 const { vote } = require("./features/voters")
 const { updateDotaHeroes, randomhero } = require("./features/dota")
+const { getLastMatch, setupBot, register_result } = require("./features/result")
 
 
 expressApp.get("/", (req, res) => {
@@ -65,6 +66,20 @@ bot.command('reminder', ctx => {
 
 // End of Manchester United Schedule
 
+// Start of Manchester United Result
+
+setupBot(bot)
+
+bot.command('lastmatch', ctx => {
+    getLastMatch(ctx)
+})
+
+bot.command('matchupdates', ctx => {
+    register_result(ctx)
+})
+
+// End of Manchester United Result
+
 // Start of Pemuda Tersesat
 
 bot.command('pemudatersesat', ctx => {
@@ -96,8 +111,10 @@ bot.command('vote', ctx => {
 
 // Start of Dota
 
-bot.command('updatehero', ctx => {
-    updateDotaHeroes(ctx)
+updateDotaHeroes()
+
+bot.command('updatehero', _ => {
+    updateDotaHeroes()
 })
 
 bot.command('randomhero', ctx => {

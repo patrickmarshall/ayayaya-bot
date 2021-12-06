@@ -10,7 +10,7 @@ const dota = new Database("./dota.json", {
     }
 })
 
-function updateDotaHeroes(ctx) {
+function updateDotaHeroes() {
     getData("https://www.dota2.com/datafeed/herolist?language=english")
         .then(data => {
             dota.set("heroes", data.result.data.heroes)

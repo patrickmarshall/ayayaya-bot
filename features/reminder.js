@@ -32,7 +32,7 @@ const fixtures_db = new Database("./fixtures.json", {
 })
 
 function getFixtures(token) {
-    new Promise((resolve) => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchfixture/sid:2021~team:Team%20Level%2FFirst%20Team~isMU:true/0/60", {
+    new Promise(() => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchfixture/sid:2021~team:Team%20Level%2FFirst%20Team~isMU:true/0/60", {
         "headers": {
             "accept": "application/json",
             "accept-language": "en-US,en;q=0.9",
@@ -115,15 +115,20 @@ function sendReminder(time, fixture = listFixtures[0], _listChat) {
 function register(ctx) {
     var array = chat_db.get("list")
 
-    if (!array.includes(ctx.chat.id)) {
+    if (typeof array !== "undefined") {
+        if (!array.includes(ctx.chat.id)) {
+            chat_db.push("list", ctx.chat.id)
+            ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main.")
+        } else {
+            const index = array.indexOf(ctx.chat.id)
+            array.splice(index, 1)
+            chat_db.set("list", array)
+    
+            ctx.reply("Gamau diingetin yaudah")
+        }
+    } else {
         chat_db.push("list", ctx.chat.id)
         ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main.")
-    } else {
-        const index = array.indexOf(ctx.chat.id)
-        array.splice(index, 1)
-        chat_db.set("list", array)
-
-        ctx.reply("Gamau diingetin yaudah")
     }
 }
 

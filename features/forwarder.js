@@ -31,7 +31,11 @@ function inline(message, type) {
 function hears(ctx) {
     const group_list = chatlist_db.get("mutual_group_list")
     
-    if (!group_list.some(group => group.id === ctx.chat.id) && ctx.chat.type.includes("group")) {
+    if (typeof group_list !== "undefined") {
+        if (!group_list.some(group => group.id === ctx.chat.id) && ctx.chat.type.includes("group")) {
+            chatlist_db.push("mutual_group_list", {"name": ctx.chat.title, "id": ctx.chat.id})
+        }
+    } else {
         chatlist_db.push("mutual_group_list", {"name": ctx.chat.title, "id": ctx.chat.id})
     }
 
