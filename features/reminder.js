@@ -66,22 +66,32 @@ function checkDifferences(ctx = null, demand = false) {
     listFixtures = fixtures_db.get("list")
     listChat = chat_db.get("list")
 
+    var match
+
     sleep(2000)
-    const diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
+    var diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
 
     if (diff <= 0) {
         listFixtures.splice(0, 1)
         fixtures_db.set("list", listFixtures)
     }
 
+    for (let i = 0; i < listFixtures.length; i++) {
+        if (listFixtures[i].resultdata_t.Period != "Postponed") {
+            match = listFixtures[i]
+            diff = new Date(match.matchdate_tdt).getTime() - new Date().getTime()
+            break
+        }
+    }
+
     if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
-        sendReminder("1 jam", listFixtures[0], listChat)
+        sendReminder("1 jam", match, listChat)
     } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
-        sendReminder("12 jam", listFixtures[0], listChat)
+        sendReminder("12 jam", match, listChat)
     }
 
     if (demand) {
-        sendReminder(msToTime(diff), listFixtures[0], [ctx.chat.id])
+        sendReminder(msToTime(diff), match, [ctx.chat.id])
     }
 }
 
