@@ -84,14 +84,14 @@ function checkDifferences(ctx = null, demand = false) {
         }
     }
 
-    if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
-        sendReminder("1 jam", match, listChat)
-    } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
-        sendReminder("12 jam", match, listChat)
-    }
-
     if (demand) {
         sendReminder(msToTime(diff), match, [ctx.chat.id])
+    } else {
+        if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
+            sendReminder("1 jam", match, listChat)
+        } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
+            sendReminder("12 jam", match, listChat)
+        }
     }
 }
 
