@@ -105,5 +105,7 @@ dist
 
 # Local DB
 chatlist.json
+dota.json
 fixtures.json
 dota.json
+result.json
