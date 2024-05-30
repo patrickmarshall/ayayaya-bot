@@ -33,7 +33,7 @@ const fixtures_db = new Database("./fixtures.json", {
 
 function getFixtures(token) {
     let year = new Date().getFullYear();
-    new Promise(() => fetch(`https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchfixture/sid:${year}~team:Team%20Level%2FFirst%20Team~isMU:true/0/60`, {
+    new Promise(() => fetch(`https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchfixture/sid:2023~team:Team%20Level%2FFirst%20Team~isMU:true/0/60`, {
         "headers": {
             "accept": "application/json",
             "accept-language": "en-US,en;q=0.9",

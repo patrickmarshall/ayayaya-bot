@@ -134,7 +134,7 @@ function register_result(ctx) {
 }
 
 function getResult(token) {
-    new Promise((promise) => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchresult/sid:2022~isMU:true/0/30", {
+    new Promise((promise) => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchresult/sid:2023~isMU:true/0/30", {
         "headers": {
           "accept": "application/json",
           "accept-language": "en-US,en;q=0.9,fr;q=0.8,en-GB;q=0.7,id;q=0.6",
