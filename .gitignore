@@ -103,9 +103,11 @@ dist
 # TernJS port file
 .tern-port
 
+# Mac file
+.DS_Store
+
 # Local DB
 chatlist.json
 dota.json
 fixtures.json
-dota.json
 result.json
