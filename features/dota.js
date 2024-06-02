@@ -25,4 +25,7 @@ function randomhero(ctx) {
 
 }
 
-module.exports = { updateDotaHeroes, randomhero }
+module.exports = {
+    randomhero,
+    updateDotaHeroes
+}

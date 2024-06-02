@@ -6,7 +6,7 @@ const express = require("express")
 const expressApp = express()
 
 
-const { pemudatersesat, christian, buddha, moslem, random } = require("./features/pemudatersesat")
+const { pemudatersesat, christian, buddha, moslem, hindhu, random, prepare, subscribe, selectDetailHour, selectedReligion, selectedHour } = require("./features/pemudatersesat")
 const { hears, photo, video, animation, sticker, processQuery } = require("./features/forwarder")
 const { register, updateFixtures, checkDifferences } = require("./features/reminder")
 const { greetings, help, who } = require("./features/greetings")
@@ -86,17 +86,50 @@ bot.command('pemudatersesat', ctx => {
     pemudatersesat(ctx)
 })
 
-bot.action('moslem', ctx => {
-    moslem(ctx)
+prepare(bot)
+
+bot.command('ayatharian', ctx => {
+    subscribe(ctx)
 })
-bot.action('christian', ctx => {
-    christian(ctx)
-})
-bot.action('buddha', ctx => {
-    buddha(ctx)
-})
-bot.action('random', ctx => {
-    random(ctx)
+
+bot.action((action, ctx) => {
+
+    // Process Query for /pemudatersesat starts from here
+    if (action === 'moslem') {
+        moslem(ctx, null)
+    } else if (action === 'christian') {
+        christian(ctx, null)
+    } else if (action === 'buddha') {
+        buddha(ctx, null)
+    }  else if (action === 'hindhu') {
+        hindhu(ctx, null)
+    } else if (action === 'random') {
+        random(ctx)
+    }
+
+    // Process Query for /subscribe starts here
+    else if (action.startsWith('subs_')) {
+        const religion = action.substring(5); // Extracting the religion value after 'subs_'
+        selectedReligion(ctx, religion)
+    }
+
+    else if (action.startsWith('hour_')) {
+        if (action === 'hour_other') {
+            selectDetailHour(ctx)
+        } else {
+            const hour = action.substring(5); // Extracting the hour value after 'hour_'
+            selectedHour(ctx, hour)
+        }
+    }
+
+    // Process Query of Forwarder.js starts from else
+    else {
+        if (ctx.callbackQuery?.message?.text && ctx.callbackQuery.message.text.includes("game")) {
+            sendGames(bot, ctx)
+        } else {
+            processQuery(bot, ctx)
+        }
+    }
 })
 
 // End of Pemuda Tersesat
@@ -150,14 +183,6 @@ bot.on('photo', ctx => {
     // }).catch((err) => {
     //     console.log(err)
     // })
-})
-
-bot.on('callback_query', ctx => {
-    if (ctx.callbackQuery?.message?.text && ctx.callbackQuery.message.text.includes("game")) {
-        sendGames(bot, ctx)
-    } else {
-        processQuery(bot, ctx)
-    }
 })
 
 // End of Forwarder

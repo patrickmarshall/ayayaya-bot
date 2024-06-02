@@ -112,4 +112,6 @@ function voting(event_id, bearer, question_id, index, ctx, end) {
         })
 }
 
-module.exports = { vote }
+module.exports = { 
+    vote 
+}

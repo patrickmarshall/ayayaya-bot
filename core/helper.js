@@ -60,4 +60,10 @@ function msToTime(s) {
   return result
 }
 
-module.exports = { getData, sleep, addZero, msToTime, daysToString }
+module.exports = { 
+  getData, 
+  sleep, 
+  addZero, 
+  msToTime, 
+  daysToString 
+}

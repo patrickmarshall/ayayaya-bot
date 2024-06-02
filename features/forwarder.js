@@ -141,4 +141,11 @@ function processQuery(bot, ctx) {
     ctx.editMessageText("Udah dikirim!")
 }
 
-module.exports = { hears, photo, video, animation, sticker, processQuery }
+module.exports = { 
+    animation, 
+    hears, 
+    photo, 
+    processQuery, 
+    sticker, 
+    video 
+}

@@ -26,7 +26,8 @@ function help(ctx) {
         ctx.reply(`~Admin command~\n\n` +
         `/who - dapetin user id dan nama telegram kamu\n` +
         `/updatehero - update database dota hero\n` +
-        `/updatefixtures - update database MU fixture`
+        `/updatefixtures - update database MU fixture\n` +
+        `/vote - go boom your slido event with format /vote <event_code> <question_id> <number_of_like>`
         )
     }
 }
@@ -38,4 +39,8 @@ function who(ctx) {
     )
 }
 
-module.exports = { greetings, help, who }
+module.exports = { 
+    greetings, 
+    help, 
+    who 
+}

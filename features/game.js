@@ -33,4 +33,7 @@ function sendGames(bot, ctx) {
     ctx.editMessageText("Ayo bermain!")
 }
 
-module.exports = { games, sendGames }
+module.exports = { 
+    games, 
+    sendGames 
+}

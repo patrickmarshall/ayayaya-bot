@@ -79,27 +79,6 @@ function sendMessage(match, list_chat) {
             stadium += " Stadium"
         }
 
-        // Goal
-        // var dict = {
-        //     "x": 1,
-        //     "y": 6,
-        //     "z": 9,
-        //     "a": 5,
-        //     "b": 7,
-        //     "c": 11,
-        //     "d": 17,
-        //     "t": 3
-        //   }
-        //   // Create items array
-        //   var items = Object.keys(dict).map(function(key) {
-        //     return [key, dict[key]];
-        //   })
-          
-        //   // Sort the array based on the second element
-        //   items.sort(function(first, second) {
-        //     return second[1] - first[1];
-        //   })
-
         _bot.telegram.sendMessage(
             chatId,
             `${result}\n\n` +
@@ -108,9 +87,6 @@ function sendMessage(match, list_chat) {
             `${match.hometeam_t} vs ${match.awayteam_t}\n`+
             `${match.resultdata_t.HomeResult.Score} - ${match.resultdata_t.AwayResult.Score}`
         )
-        if (result.includes("🎉")) {
-            // _bot.telegram.sendMessage
-        }
     })
 }
 
@@ -170,4 +146,8 @@ function setupBot(bot) {
     _bot = bot
 }
 
-module.exports = { getLastMatch, setupBot, register_result }
+module.exports = { 
+    getLastMatch, 
+    register_result,
+    setupBot 
+}

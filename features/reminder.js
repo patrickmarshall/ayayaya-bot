@@ -152,4 +152,8 @@ function updateFixtures(ctx, bot) {
     getFixtures(token)
 }
 
-module.exports = { register, updateFixtures, checkDifferences }
+module.exports = { 
+    checkDifferences,
+    register, 
+    updateFixtures
+}
