@@ -9,13 +9,25 @@ function greetings(ctx) {
     }
 }
 
+// pemudatersesat - quote keren dari agama pilihan anda
+// ayatharian - minta dikirimin ayat sesuai agama kamu di jam yang kamu pilih
+// reminder - nyalain Manchester United match reminder
+// nextfixture - pertandingan Manchester United terdekat
+// lastmatch - hasil pertandingan terbaru Manchester United
+// matchupdate - nyalain update hasil pertandingan Manchester United
+// playgame - dapatkan game game menarik
+// randomhero - kalau kamu bingung mau pick apa pas main dota
+// help - list command yang ada
+
 function help(ctx) {
     var text = `/pemudatersesat - quote keren dari agama pilihan anda\n` +
+    `/ayatharian - minta dikirimin ayat sesuai agama kamu di jam yang kamu pilih\n` +
     `/reminder - nyalain Manchester United match reminder\n` +
     `/nextfixture - pertandingan Manchester United terdekat\n` +
     `/playgame - dapatkan game game menarik\n` +
     `/lastmatch - hasil pertandingan terbaru Manchester United\n`+
     `/matchupdate - nyalain update hasil pertandingan Manchester United\n`+
+    `/randomhero - kalau kamu bingung mau pick apa pas main dota\n` +
     `/help - this\n\n` +
 
     `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`

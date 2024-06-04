@@ -1,4 +1,5 @@
 const fetch = require("node-fetch")
+const { getCurrentDate, sleep } = require("../core/helper")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 const { JSDOM } = require('jsdom');
@@ -6,13 +7,13 @@ const fs = require('fs');
 
 var _bot
 
-// const result_db = new Database("./badminton.json", {
-//     snapshots: {
-//         enabled: true,
-//         interval: 24 * 60 * 60 * 1000,
-//         folder: './backups/'
-//     }
-// })
+const db = new Database("./badminton.json", {
+    snapshots: {
+        enabled: true,
+        interval: 24 * 60 * 60 * 1000,
+        folder: './backups/'
+    }
+})
 
 // const chat_db = new Database("./chatlist.json", {
 //     snapshots: {
@@ -23,7 +24,7 @@ var _bot
 // })
 
 function getResult(ctx) {
-    const url = 'https://bwfworldtour.bwfbadminton.com/tournament/4747/kff-singapore-badminton-open-2024/results/2024-05-28';
+    const url = getCurrentTournamentLink();
 
     const options = {
         method: 'GET',
@@ -32,7 +33,7 @@ function getResult(ctx) {
             'accept-language': 'en-US,en;q=0.9,fr;q=0.8,en-GB;q=0.7,id;q=0.6',
             'cookie': 'cf_clearance=kM0VqySp0NEee9HzCCdFiJuJSg_lYCDK_CoRgo6yxFo-1714630809-1.0.1.1-LQbMMeBq9ajmJ8FVWNRccXt07xRMvIvVkP6qEynqbEOcrs57DYXhf0F_1tKYudzeBGSt40SUvtV6sECSsm_Odw; CookieConsent={stamp:%27vejD+j5aI23Za3L0v37g6Cyd7mJKxjCChlh35hqStRkj2W/iZ/MzJQ==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1714630819702%2Cregion:%27id%27}; _gid=GA1.2.964804785.1717084527; cf_clearance=F1Ry1s5d.ERc7eKvCNHPk1R4vKbOv1O.xGeKhIpkM2w-1717119722-1.0.1.1-vxn3t.T5NInrMUiCCy0lUXgZHkvxbZzXos8C1ieDPWLEXIDEuaARo1MkVlUB18mrucDKiKKklZqAAKr9Ke5j8w; _ga=GA1.2.1337385662.1714630820; _ga_HMB879WPYW=GS1.1.1717119717.4.1.1717119733.0.0.0',
             'priority': 'u=1, i',
-            'referer': 'https://bwfworldtour.bwfbadminton.com/tournament/4747/kff-singapore-badminton-open-2024/results/2024-05-31',
+            'referer': url,
             'sec-ch-ua': '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"macOS"',
@@ -46,8 +47,41 @@ function getResult(ctx) {
 
     fetch(url, options)
         .then(response => response.text())
-        .then(data => parseMatchDetails(data))
+        .then(data => {
+            // getIndonesiaPlayerOnly(ctx, parseMatchDetails(data)) 
+            const jsonData = parseMatchDetails(data);
+            const filteredData = jsonData.filter(match => {
+                return match.team1.player1Flag?.includes('indonesia') || match.team2.player3Flag?.includes('indonesia');
+            });
+
+            if (filteredData.length > 0) {
+                sendMessage(ctx, filteredData);
+            }
+        })
         .catch(error => console.error('Error:', error));
+}
+
+async function sendMessage(ctx, data) {
+    data.forEach(match => {
+        match.court = parseInt(match.court);
+    });
+
+    // Sort filteredData by match.court
+    data.sort((a, b) => a.court - b.court);
+
+    for (const match of data) {
+        let message = '';
+        message += `${match.location}\n`;
+        message += `${match.round} Match\n\n`;
+        message += `${match.team1.player1} ${match.team1.player2 ? ' & ' + match.team1.player2 : ''}\n`;
+        message += 'vs\n';
+        message += `${match.team2.player3} ${match.team2.player4 ? ' & ' + match.team2.player4 : ''}\n\n`;
+        message += `${match.score}\n`;
+        message += `Duration: ${match.duration}\n\n`;
+        ctx.reply(message);
+
+        await sleep(100);
+    }
 }
 
 function parseMatchDetails(htmlContent) {
@@ -128,9 +162,27 @@ function parseMatchDetails(htmlContent) {
     // Remove location-only objects
     const finalData = cleanedData.filter(match => match.time);
     // Convert to JSON string
-    const jsonString = JSON.stringify(finalData, null, 2);
+    return finalData
+}
 
-    // Write JSON string to file
-    fs.writeFileSync('output28.json', jsonString);
-    console.log('Data has been written to output.json');
+function getCurrentTournamentLink() {
+    let tournaments = db.get('tournaments');
+    let _tournaments = tournaments[0].tournamentList
+
+    const currentDate = new Date();
+
+    for (const tournament of _tournaments) {
+        const startDate = new Date(tournament.startDate);
+        const endDate = new Date(tournament.endDate);
+
+        if (currentDate >= startDate && currentDate <= endDate) {
+            return tournament.link + '/results/' + getCurrentDate();
+        }
+    }
+
+    return null; // No tournament currently running
+}
+
+module.exports = {
+    getResult
 }

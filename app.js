@@ -14,6 +14,8 @@ const { games, sendGames } = require("./features/game")
 const { vote } = require("./features/voters")
 const { updateDotaHeroes, randomhero } = require("./features/dota")
 const { getLastMatch, setupBot, register_result } = require("./features/result")
+const { currentFlashdeal, nextFlashdeal, insertComponent } = require("./features/tokopedia")
+const { getResult } = require("./features/badminton")
 
 
 expressApp.get("/", (req, res) => {
@@ -155,6 +157,26 @@ bot.command('randomhero', ctx => {
 })
 
 // End of Dota
+
+// Start of Tokopedia
+
+// bot.command('insertComponent', ctx => {
+//     insertComponent(ctx)
+// })
+
+bot.command('currentFlashdeal', ctx => {
+    currentFlashdeal(ctx)
+})
+
+// End of Tokopedia
+
+// Start of Badminton
+
+bot.command('hasilbadminton', ctx => {
+    getResult(ctx)
+})
+
+// End of Badmonton
 
 // Start of Forwarder
 

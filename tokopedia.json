@@ -1,0 +1,24 @@
+{
+  "component": [
+    {
+      "hour": 9,
+      "value": "3"
+    },
+    {
+      "hour": 12,
+      "value": "7"
+    },
+    {
+      "hour": 16,
+      "value": "9"
+    },
+    {
+      "hour": 22,
+      "value": "11"
+    }
+  ],
+  "filter": {
+    "sesuai": 29,
+    "diskon": 31
+  }
+}

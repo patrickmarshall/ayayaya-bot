@@ -1,0 +1,153 @@
+{
+    "tournaments": [
+        {
+            "year": 2024,
+            "tournamentList": [
+                {
+                    "name": "KAPAL API INDONESIA OPEN 2024",
+                    "startDate": "2024-06-04",
+                    "endDate": "2024-06-09",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4748/kapal-api-indonesia-open-2024",
+                    "prizeMoney": "$1,300,000",
+                    "city": "Jakarta, Indonesia"
+                },
+                {
+                    "name": "SATHIO GROUP Australian Open 2024",
+                    "startDate": "2024-06-11",
+                    "endDate": "2024-06-16",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4749/sathio-group-australian-open-2024",
+                    "prizeMoney": "$420,000",
+                    "city": "Sydney, Australia"
+                },
+                {
+                    "name": "YONEX US Open 2024",
+                    "startDate": "2024-06-25",
+                    "endDate": "2024-06-30",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4873/yonex-us-open-2024",
+                    "prizeMoney": "$210,000",
+                    "city": "Fort Worth, Texas, USA"
+                },
+                {
+                    "name": "YONEX Canada Open 2024",
+                    "startDate": "2024-07-02",
+                    "endDate": "2024-07-07",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4751/yonex-canada-open-2024",
+                    "prizeMoney": "$420,000",
+                    "city": "Calgary, Canada"
+                },
+                {
+                    "name": "DAIHATSU Japan Open 2024",
+                    "startDate": "2024-08-20",
+                    "endDate": "2024-08-25",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4753/daihatsu-japan-open-2024",
+                    "prizeMoney": "$850,000",
+                    "city": "Yokohama Kanagawa, Japan"
+                },
+                {
+                    "name": "Korea Open 2024",
+                    "startDate": "2024-08-27",
+                    "endDate": "2024-09-01",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4754/korea-open-2024",
+                    "prizeMoney": "$420,000",
+                    "city": "Mokpo City, Korea"
+                },
+                {
+                    "name": "YONEX Taipei Open 2024",
+                    "startDate": "2024-09-03",
+                    "endDate": "2024-09-08",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4755/yonex-taipei-open-2024",
+                    "prizeMoney": "$210,000",
+                    "city": "Taipei, Chinese Taipei"
+                },
+                {
+                    "name": "Hong Kong Open 2024",
+                    "startDate": "2024-09-10",
+                    "endDate": "2024-09-15",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4756/hong-kong-open-2024",
+                    "prizeMoney": "$420,000",
+                    "city": "Hong Kong, Hong Kong China"
+                },
+                {
+                    "name": "China Open 2024",
+                    "startDate": "2024-09-17",
+                    "endDate": "2024-09-22",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4757/china-open-2024",
+                    "prizeMoney": "$1,300,000",
+                    "city": "Changzhou, China"
+                },
+                {
+                    "name": "Macau Open 2024",
+                    "startDate": "2024-09-24",
+                    "endDate": "2024-09-29",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/5139/macau-open-2024",
+                    "prizeMoney": "$210,000",
+                    "city": "Macau, Macau China"
+                },
+                {
+                    "name": "CLASH ROYALE Arctic Open 2024 powered by YONEX",
+                    "startDate": "2024-10-08",
+                    "endDate": "2024-10-13",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4760/clash-royale-arctic-open-2024-powered-by-yonex",
+                    "prizeMoney": "$420,000",
+                    "city": "Vantaa, Finland"
+                },
+                {
+                    "name": "Denmark Open 2024",
+                    "startDate": "2024-10-15",
+                    "endDate": "2024-10-20",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4761/denmark-open-2024",
+                    "prizeMoney": "$850,000",
+                    "city": "Odense, Denmark"
+                },
+                {
+                    "name": "Hylo Open 2024",
+                    "startDate": "2024-10-29",
+                    "endDate": "2024-11-03",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4763/hylo-open-2024",
+                    "prizeMoney": "$210,000",
+                    "city": "Saarbrucken, Germany"
+                },
+                {
+                    "name": "Korea Masters 2024",
+                    "startDate": "2024-11-05",
+                    "endDate": "2024-11-10",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4764/korea-masters-2024",
+                    "prizeMoney": "$210,000",
+                    "city": "Gwangju, Korea"
+                },
+                {
+                    "name": "Kumamoto Masters Japan 2024",
+                    "startDate": "2024-11-12",
+                    "endDate": "2024-11-17",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4765/kumamoto-masters-japan-2024",
+                    "prizeMoney": "$420,000",
+                    "city": "Kumamoto, Japan"
+                },
+                {
+                    "name": "China Masters 2024",
+                    "startDate": "2024-11-19",
+                    "endDate": "2024-11-24",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4766/china-masters-2024",
+                    "prizeMoney": "$850,000",
+                    "city": "Shenzhen, China"
+                },
+                {
+                    "name": "Syed Modi India International 2024",
+                    "startDate": "2024-11-26",
+                    "endDate": "2024-12-01",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4767/syed-modi-india-international-2024",
+                    "prizeMoney": "$210,000",
+                    "city": "Lucknow, India"
+                },
+                {
+                    "name": "HSBC BWF World Tour Finals 2024",
+                    "startDate": "2024-12-11",
+                    "endDate": "2024-12-15",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/4768/hsbc-bwf-world-tour-finals-2024",
+                    "prizeMoney": "$2,000,000",
+                    "city": "Hangzhou, China"
+                }
+            ]
+        }
+    ]
+}
