@@ -58,9 +58,10 @@ function hindhu(ctx, id) {
         })
 }
 
+// english -> change after comma to en.asad
 function moslem(ctx, id) {
     let rand = Math.floor(Math.random() * 6326) + 1
-    getData(`https://api.alquran.cloud/v1/ayah/${rand}/editions/quran-simple,en.asad`)
+    getData(`https://api.alquran.cloud/v1/ayah/${rand}/editions/quran-simple,id.indonesian`)
         .then(data => {
             var message = `🕋☪🕌 tersesat~ oh tersesaat~ astagfi?..rullah 🕋☪🕌 \n\n${data.data[0].text}\n${data.data[1].text} \n\nQS ${data.data[0].surah.englishName}:${data.data[0].numberInSurah}`
             send(ctx, id, message)
