@@ -28,6 +28,9 @@ function help(ctx) {
     `/lastmatch - hasil pertandingan terbaru Manchester United\n`+
     `/matchupdate - nyalain update hasil pertandingan Manchester United\n`+
     `/randomhero - kalau kamu bingung mau pick apa pas main dota\n` +
+    `/hasilbadminton - hasil pertandingan badminton hari ini\n` +
+    `/hasilbadmintonindonesia - hasil pertandingan badminton pemain Indonesia hari ini\n` +
+    `/subscribebadminton - subscribe hasil pertandingan badminton pemain Indonesia\n` +
     `/help - this\n\n` +
 
     `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`

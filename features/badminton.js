@@ -4,6 +4,7 @@ const cron = require('node-cron')
 const Database = require("easy-json-database")
 const { JSDOM } = require('jsdom');
 const fs = require('fs');
+const { get } = require("http");
 
 var _bot
 
@@ -15,15 +16,57 @@ const db = new Database("./badminton.json", {
     }
 })
 
-// const chat_db = new Database("./chatlist.json", {
-//     snapshots: {
-//         enabled: true,
-//         interval: 24 * 60 * 60 * 1000,
-//         folder: './backups/'
-//     }
-// })
+const chat_db = new Database("./chatlist.json", {
+    snapshots: {
+        enabled: true,
+        interval: 24 * 60 * 60 * 1000,
+        folder: './backups/'
+    }
+})
 
-function getResult(ctx) {
+const result_db = new Database("./result.json", {
+    snapshots: {
+        enabled: true,
+        interval: 24 * 60 * 60 * 1000,
+        folder: './backups/'
+    }
+})
+
+cron.schedule('*/5 * * * *', () => {
+    checkMatch()
+});
+
+function subscribeBadminton(ctx) {
+    const newSubscriber = ctx.chat.id
+    const subscribers = chat_db.get('badminton');
+    const subscriberIndex = subscribers.findIndex(subscriber => subscriber === ctx.chat.id);
+    if (subscriberIndex !== -1) {
+        // Subscriber exists in the database
+        subscribers.splice(subscriberIndex, 1);
+        // Save the updated array back to the database
+        chat_db.set('badminton', subscribers);
+        ctx.reply("Oke gak kuingetin lagi hasil pemain Indonesia! 😠\nDasar ga cinta Indonesia.");
+    } else {
+        // Check if subscribers array exists and is an array
+        if (subscribers && Array.isArray(subscribers)) {
+            subscribers.push(newSubscriber);
+            chat_db.set('badminton', subscribers);
+        } else {
+            // if subcribers not exist 
+            chat_db.set('badminton', [newSubscriber]);
+        }
+        // Subscriber does not exist in the database
+        ctx.reply("Yeeey!\n" +
+            "Oke! Aku bakal kirimkan hasil pemain Bulutangkis Indonesia! \n" +
+            "🇮🇩🇮🇩🇮🇩 INDONESIA JUARAAAA! 🇮🇩🇮🇩🇮🇩\n" +
+            "IN - DO - NE - SIA! (prok prok prok prok prok) ✺◟(＾∇＾)◞✺\n" +
+            "IN - DO - NE - SIA! (prok prok prok prok prok) ヾ( ˃ᴗ˂ )◞ •\n" +
+            "IN - DO - NE - SIA! (prok prok prok prok prok) ᕙ( •̀ ᗜ •́ )ᕗ\n"
+        );
+    }
+}
+
+async function getResult(indonesiaOnly = true) {
     const url = getCurrentTournamentLink();
 
     const options = {
@@ -45,20 +88,150 @@ function getResult(ctx) {
         }
     };
 
-    fetch(url, options)
-        .then(response => response.text())
-        .then(data => {
-            // getIndonesiaPlayerOnly(ctx, parseMatchDetails(data)) 
-            const jsonData = parseMatchDetails(data);
-            const filteredData = jsonData.filter(match => {
-                return match.team1.player1Flag?.includes('indonesia') || match.team2.player3Flag?.includes('indonesia');
-            });
+    try {
+        const response = await fetch(url, options);
+        const data = await response.text();
+        const jsonData = parseMatchDetails(data);
 
-            if (filteredData.length > 0) {
-                sendMessage(ctx, filteredData);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+        const filteredData = jsonData.filter(match => {
+            return match.team1.player1Flag?.includes('indonesia') || match.team2.player3Flag?.includes('indonesia');
+        });
+
+        if (indonesiaOnly) {
+            return filteredData.length > 0 ? filteredData : [];
+        } else {
+            return jsonData;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
+function checkMatch() {
+    getResult().then(result => {
+        if (result.length > 0) {
+            result.forEach(match => {
+                if (match.duration.includes('LIVEWATCH')) {
+                    var listOngoingMatch = result_db.get("ongoing")
+                    var isMatchInDB = false;
+                    for (const ongoingMatch of listOngoingMatch) {
+                        if (match.team1.player1 === ongoingMatch.team1.player1 || match.team1.player1 === ongoingMatch.team2.player3) {
+                            isMatchInDB = true;
+                        }
+                    }
+                    if (!isMatchInDB) {
+                        listOngoingMatch.push(match);
+                        result_db.set("ongoing", listOngoingMatch);
+                        const subscribers = chat_db.get('badminton');
+                        for (const chatId of subscribers) {
+                            let message = '';
+                            message += `📢 Teet teet teet~ Ada pemain Indonesia lagi tanding nih!!\n`;
+                            message += `Yuk kita semangatin yukk!!\n`;
+                            message += `✺◟(＾∇＾)◞✺  ヾ( ˃ᴗ˂ )◞  ᕙ( •̀ ᗜ •́ )ᕗ\n\n`;
+                            message += `${getCurrentTournamentName()}\n`;
+                            message += `${match.location}\n`;
+                            message += `${match.round} Match\n\n`;
+                            if (match.team1.player1Flag.includes('indonesia')) {
+                                message += '🇮🇩 ';
+                            }
+                            message += `${match.team1.player1} ${match.team1.player2 ? '& ' + match.team1.player2 : ''}`;
+                            if (match.team1.player1Flag.includes('indonesia')) {
+                                message += ' 🇮🇩\n';
+                            } else {
+                                message += '\n';
+                            }
+                            message += 'vs\n';
+                            if (match.team2.player3Flag.includes('indonesia')) {
+                                message += '🇮🇩 ';
+                            }
+                            message += `${match.team2.player3} ${match.team2.player4 ? '& ' + match.team2.player4 : ''}`;
+                            if (match.team2.player3Flag.includes('indonesia')) {
+                                message += ' 🇮🇩\n\n';
+                            } else {
+                                message += '\n\n';
+                            }
+
+                            _bot.telegram.sendMessage(chatId, message);
+                        }
+                    }
+                } else if (!match.duration.includes('0:00')) {
+                    var listOngoingMatch = result_db.get("ongoing")
+                    var isMatchInDB = false;
+                    for (const ongoingMatch of listOngoingMatch) {
+
+                        if (match.team1.player1 === ongoingMatch.team1.player1 || match.team1.player1 === ongoingMatch.team2.player3) {
+                            isMatchInDB = true;
+                        }
+                    }
+                    if (isMatchInDB) {
+                        const matchIndex = listOngoingMatch.findIndex(ongoingMatch => ongoingMatch.team1.player1 === match.team1.player1 || ongoingMatch.team1.player1 === match.team2.player3);
+                        if (matchIndex !== -1) {
+                            listOngoingMatch.splice(matchIndex, 1);
+                            result_db.set("ongoing", listOngoingMatch);
+                        }
+                        const subscribers = chat_db.get('badminton');
+                        for (const chatId of subscribers) {
+                            let message = '';
+                            if (match.team1.player1Flag.includes('indonesia')) {
+                                message += '🇮🇩 Horeeee! Pemain Indonesia menanggg! 🇮🇩\n';
+                                message += `✺◟(＾∇＾)◞✺  ヾ( ˃ᴗ˂ )◞  ᕙ( •̀ ᗜ •́ )ᕗ\n\n`;
+                            } else {
+                                message += '😭 Yahhh! Pemain Indonesia kalah huhuhu 😭\n\n';
+                            }
+
+                            message += `${getCurrentTournamentName()}\n`;
+                            message += `${match.location}\n`;
+                            message += `${match.round} Match\n\n`;
+                            if (match.team1.player1Flag.includes('indonesia')) {
+                                message += '🇮🇩 ';
+                            }
+                            message += `${match.team1.player1} ${match.team1.player2 ? '& ' + match.team1.player2 : ''}`;
+                            if (match.team1.player1Flag.includes('indonesia')) {
+                                message += ' 🇮🇩\n';
+                            } else {
+                                message += '\n';
+                            }
+                            message += 'vs\n';
+                            if (match.team2.player3Flag.includes('indonesia')) {
+                                message += '🇮🇩 ';
+                            }
+                            message += `${match.team2.player3} ${match.team2.player4 ? '& ' + match.team2.player4 : ''}`;
+                            if (match.team2.player3Flag.includes('indonesia')) {
+                                message += ' 🇮🇩\n\n';
+                            } else {
+                                message += '\n\n';
+                            }
+                            message += `${match.score}\n`;
+                            message += `Duration: ${match.duration}`;
+
+                            _bot.telegram.sendMessage(chatId, message);
+                        }
+                    }
+                }
+            });
+        }
+    });
+    // check if in ongoing
+    // if any, delete from ongoing 
+    // should delete from ongoing 
+    // and send message
+}
+
+async function hasilIndonesia(ctx) {
+    const result = await getResult();
+    const filteredData = result.filter(match => {
+        return (!match.duration.includes('LIVEWATCH') && !match.duration.includes('0:00'));
+    });
+    sendMessage(ctx, filteredData);
+}
+
+async function hasilSemua(ctx) {
+    const result = await getResult(indonesiaOnly = false);
+    const filteredData = result.filter(match => {
+        return (!match.duration.includes('LIVEWATCH') && !match.duration.includes('0:00'));
+    });
+    sendMessage(ctx, filteredData);
 }
 
 async function sendMessage(ctx, data) {
@@ -71,16 +244,45 @@ async function sendMessage(ctx, data) {
 
     for (const match of data) {
         let message = '';
+
+        if (match.team1.player1Flag.includes('indonesia') || match.team2.player3Flag.includes('indonesia')) {
+            if (match.team1.player1Flag.includes('indonesia')) {
+                message += '🇮🇩 Horeeee! Pemain Indonesia menanggg! 🇮🇩\n';
+                message += `✺◟(＾∇＾)◞✺  ヾ( ˃ᴗ˂ )◞  ᕙ( •̀ ᗜ •́ )ᕗ\n\n`;
+            } else {
+                message += '😭 Yahhh! Pemain Indonesia kalah huhuhu 😭\n\n';
+            }
+        }
+
+        message += `${getCurrentTournamentName()}\n`;
         message += `${match.location}\n`;
         message += `${match.round} Match\n\n`;
-        message += `${match.team1.player1} ${match.team1.player2 ? ' & ' + match.team1.player2 : ''}\n`;
+        if (match.team1.player1Flag.includes('indonesia')) {
+            message += '🇮🇩 ';
+        }
+        message += `${match.team1.player1} ${match.team1.player2 ? '& ' + match.team1.player2 : ''}`;
+        if (match.team1.player1Flag.includes('indonesia')) {
+            message += ' 🇮🇩\n';
+        } else {
+            message += '\n';
+        }
         message += 'vs\n';
-        message += `${match.team2.player3} ${match.team2.player4 ? ' & ' + match.team2.player4 : ''}\n\n`;
-        message += `${match.score}\n`;
-        message += `Duration: ${match.duration}\n\n`;
+        if (match.team2.player3Flag.includes('indonesia')) {
+            message += '🇮🇩 ';
+        }
+        message += `${match.team2.player3} ${match.team2.player4 ? '& ' + match.team2.player4 : ''}`;
+        if (match.team2.player3Flag.includes('indonesia')) {
+            message += ' 🇮🇩\n\n';
+        } else {
+            message += '\n\n';
+        }
+        if (match.score) {
+            message += `${match.score}\n`;
+        }
+        message += `Duration: ${match.duration}`;
         ctx.reply(message);
 
-        await sleep(100);
+        await sleep(1000);
     }
 }
 
@@ -183,6 +385,31 @@ function getCurrentTournamentLink() {
     return null; // No tournament currently running
 }
 
+function getCurrentTournamentName() {
+    let tournaments = db.get('tournaments');
+    let _tournaments = tournaments[0].tournamentList
+
+    const currentDate = new Date();
+
+    for (const tournament of _tournaments) {
+        const startDate = new Date(tournament.startDate);
+        const endDate = new Date(tournament.endDate);
+
+        if (currentDate >= startDate && currentDate <= endDate) {
+            return tournament.name
+        }
+    }
+
+    return null; // No tournament currently running
+}
+
+function setupBadmintonBot(bot) {
+    _bot = bot
+}
+
 module.exports = {
-    getResult
+    hasilIndonesia,
+    hasilSemua,
+    setupBadmintonBot,
+    subscribeBadminton
 }
