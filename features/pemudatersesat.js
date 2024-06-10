@@ -26,7 +26,7 @@ function pemudatersesat(ctx) {
     ctx.reply("Choose y̶o̶u̶r̶ religion", {
         reply_markup: {
             inline_keyboard: [
-                [{ text: "Moslem", callback_data: `moslem` }, { text: "Christian", callback_data: `christian` }],
+                [{ text: "Islam", callback_data: `moslem` }, { text: "Christian", callback_data: `christian` }],
                 [{ text: "Buddha", callback_data: `buddha` }, { text: "Hindu", callback_data: `hindhu` }],
                 [{ text: "Random", callback_data: `random` }]
             ]
@@ -68,20 +68,20 @@ function moslem(ctx, id) {
         })
 }
 
-function random(ctx) {
+function random(ctx, id) {
     let ang = Math.floor(Math.random() * 4)
     switch (ang) {
         case 0:
-            buddha(ctx, null)
+            buddha(ctx, id)
             break
         case 1:
-            christian(ctx, null)
+            christian(ctx, id)
             break
         case 2:
-            hindhu(ctx, null)
+            hindhu(ctx, id)
             break
         default:
-            moslem(ctx, null)
+            moslem(ctx, id)
     }
 }
 
@@ -115,7 +115,9 @@ function subscribe(ctx) {
                     ctx.deleteMessage(messageId);
                 }, 10000); // Delete after 5 seconds
             })
-        selectReligion(ctx)
+            .then(() => {
+                selectReligion(ctx)
+            })
     }
 }
 
@@ -123,8 +125,9 @@ function selectReligion(ctx) {
     ctx.reply("Sekarang pilih agama ya kakk!", {
         reply_markup: {
             inline_keyboard: [
-                [{ text: "Moslem", callback_data: `subs_moslem` }, { text: "Christian", callback_data: `subs_christian` }],
-                [{ text: "Buddha", callback_data: `subs_buddha` }, { text: "Hindu", callback_data: `subs_hindhu` }]
+                [{ text: "Islam", callback_data: `subs_Islam` }, { text: "Christian", callback_data: `subs_Christian` }],
+                [{ text: "Buddha", callback_data: `subs_Buddha` }, { text: "Hindu", callback_data: `subs_Hindu` }],
+                [{ text: "Random", callback_data: `subs_Random` }]
             ]
         }
     })
@@ -225,13 +228,15 @@ function selectedHour(ctx, hour) {
 
             // Save the updated array back to the database
             chat_db.set('subscribers', subscribers);
+
+            const religion = subscribers[subscriberIndex].religion.charAt(0).toUpperCase() + subscribers[subscriberIndex].religion.slice(1)
+            ctx.reply("Oke kak! Aku bakal kirimin kamu ayat dari agama "+ religion +" setiap jam " + hour + ":00 ya! 🥳")
         } else {
             // subscriber not found
         }
     } else {
         // subscribers not found
     }
-    ctx.reply("Oke kak! Aku bakal kirimin kamu ayat setiap jam " + hour + ":00 ya! 🥳")
 }
 
 function sendDailyVerse() {
@@ -242,20 +247,20 @@ function sendDailyVerse() {
         subscribers.forEach(subscriber => {
             if (subscriber.hour === currentHour) {
                 switch (subscriber.religion) {
-                    case "moslem":
+                    case "Islam":
                         moslem(null, subscriber.id);
                         break;
-                    case "christian":
+                    case "Christian":
                         christian(null, subscriber.id);
                         break;
-                    case "buddha":
+                    case "Buddha":
                         buddha(null, subscriber.id);
                         break;
-                    case "hindhu":
+                    case "Hindu":
                         hindhu(null, subscriber.id);
                         break;
                     default:
-                        random(null);
+                        random(null, subscriber.id);
                 }
             }
         });

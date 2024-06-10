@@ -105,7 +105,7 @@ bot.action((action, ctx) => {
     }  else if (action === 'hindhu') {
         hindhu(ctx, null)
     } else if (action === 'random') {
-        random(ctx)
+        random(ctx, null)
     }
 
     // Process Query for /subscribe starts here
