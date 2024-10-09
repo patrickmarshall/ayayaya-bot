@@ -79,61 +79,29 @@ function sendMessage(match, list_chat) {
             stadium += " Stadium"
         }
 
-        // let homeGoals = [];
-        // let awayGoals = [];
-
-        // // Process home team goals
-        // match.resultdata_t.HomeResult.GoalDetailEntityList.forEach((goal) => {
-        //     if (goal.Player.FullName && goal.Time !== undefined) {
-        //         homeGoals.push(`${goal.Player.FullName} ${goal.Time.padStart(2, '0')} ⚽️`);
-        //     }
-        // });
-
-        // // Process away team goals
-        // match.resultdata_t.AwayResult.GoalDetailEntityList.forEach((goal) => {
-        //     if (goal.Player.FullName && goal.Time !== undefined) {
-        //         awayGoals.push(`⚽️ ${goal.Time.padStart(2, '0')} ${goal.Player.FullName}`);
-        //     }
-        // });
-
-        // // Calculate maximum width for home team goals
-        // const maxHomeScorerWidth = homeGoals.reduce((maxWidth, goal) => Math.max(maxWidth, goal.split(' ')[0].length), 0);
-        // const maxHomeMinuteWidth = homeGoals.reduce((maxWidth, goal) => Math.max(maxWidth, (goal.split(' ')[1] || '').length), 0);
-
-        // // Calculate maximum width for away team goals
-        // const maxAwayScorerWidth = awayGoals.reduce((maxWidth, goal) => Math.max(maxWidth, goal.split(' ')[2].length), 0);
-        // const maxAwayMinuteWidth = awayGoals.reduce((maxWidth, goal) => Math.max(maxWidth, (goal.split(' ')[1] || '').length), 0);
-
-        // // Combine goals side by side with proper alignment
-        // let combinedGoals = [];
-        // const maxLength = Math.max(homeGoals.length, awayGoals.length);
-
-        // for (let i = 0; i < maxLength; i++) {
-        //     const homeGoal = homeGoals[i] || '';
-        //     const awayGoal = awayGoals[i] || '';
-
-        //     const paddedHomeScorer = homeGoal.split(' ')[0].padEnd(maxHomeScorerWidth, ' ');
-        //     const paddedHomeMinute = (homeGoal.split(' ')[1] || '').padStart(maxHomeMinuteWidth, ' ');
-
-        //     const paddedAwayScorer = awayGoal.split(' ')[2].padEnd(maxAwayScorerWidth, ' ');
-        //     const paddedAwayMinute = (awayGoal.split(' ')[1] || '').padStart(maxAwayMinuteWidth, ' ');
-
-        //     combinedGoals.push(`${paddedHomeScorer} ${paddedHomeMinute} ⚽️ | ⚽️ ${paddedAwayMinute} ${paddedAwayScorer}`);
-        // }
-
-        // // Join the combined goals array into a single string with new line breaks
-        // let formattedGoals = combinedGoals.join('\n');
-
         // Goal
         // Format home team goals
-        const homeGoals = formatTeamGoals(`${match.hometeam_t}`, match.resultdata_t.HomeResult.GoalDetailEntityList);
+        let homeGoals = '';
+        if (match.resultdata_t.HomeResult.Score > 0) {
+            homeGoals = formatTeamGoals(`${match.hometeam_t}`, match.resultdata_t.HomeResult.GoalDetailEntityList);
+        }
 
         // Format away team goals
-        const awayGoals = formatTeamGoals(`${match.awayteam_t}`, match.resultdata_t.AwayResult.GoalDetailEntityList);
+        let awayGoals = '';
+        if (match.resultdata_t.AwayResult.Score > 0) {
+            awayGoals = formatTeamGoals(`${match.awayteam_t}`, match.resultdata_t.AwayResult.GoalDetailEntityList);
+        }
 
-        // Combine and output the formatted goals
-        const formattedGoals = `${homeGoals}\n\n${awayGoals}`;
-        // _bot.telegram.sendMessage(chatId, formattedGoals)
+        let formattedGoals = ``;
+
+        if (homeGoals != '' || awayGoals != '') {
+            formattedGoals += `🥅 Goal Scorer 🥅\n`;
+            // Combine and output the formatted goals
+            if (homeGoals != '') {
+                formattedGoals += `${homeGoals}\n\n`;
+            }
+            formattedGoals += `${awayGoals}`;
+        }
 
         _bot.telegram.sendMessage(
             chatId,
@@ -142,7 +110,6 @@ function sendMessage(match, list_chat) {
             `${stadium}\n` +
             `${match.hometeam_t} vs ${match.awayteam_t}\n` +
             `${match.resultdata_t.HomeResult.Score} - ${match.resultdata_t.AwayResult.Score}\n\n` +
-            `🥅 Goal Scorer 🥅\n` +
             `${formattedGoals}\n\n`
         )
     })
@@ -174,7 +141,7 @@ function register_result(ctx) {
 }
 
 function getResult(token) {
-    new Promise((promise) => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchresult/sid:2023~isMU:true/0/30", {
+    new Promise((promise) => fetch("https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchresult/sid:2024~team:Team%20Level%2FFirst%20Team~isMU:true/0/30", {
         "headers": {
             "accept": "application/json",
             "accept-language": "en-US,en;q=0.9,fr;q=0.8,en-GB;q=0.7,id;q=0.6",
