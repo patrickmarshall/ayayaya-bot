@@ -5,6 +5,7 @@ const Database = require("easy-json-database")
 const { JSDOM } = require('jsdom');
 const fs = require('fs');
 const { get } = require("http");
+const puppeteer = require('puppeteer');
 
 var _bot
 
@@ -32,7 +33,7 @@ const result_db = new Database("./result.json", {
     }
 })
 
-cron.schedule('*/5 * * * *', () => {
+cron.schedule('*/15 * * * *', () => {
     checkMatch()
 });
 
@@ -69,25 +70,41 @@ function subscribeBadminton(ctx) {
 async function getResult(indonesiaOnly = true) {
     const url = getCurrentTournamentLink();
 
-    const options = {
-        method: 'GET',
-        headers: {
-            "accept": "*/*",
-            "sec-ch-ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"macOS\"",
-            "x-requested-with": "XMLHttpRequest",
-            "Referer": url,
-            "Referrer-Policy": "strict-origin-when-cross-origin"
-          }
-    };
-
     try {
         if (url === null) {
             return [];
         }
-        const response = await fetch(url, options);
-        const data = await response.text();
+
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+        // Set the headers to match your cURL request
+        await page.setExtraHTTPHeaders({
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'accept-language': 'en-US,en;q=0.9,id;q=0.8',
+            'cache-control': 'max-age=0',
+            'cookie': 'cf_clearance=is9ewkfMjLlZE1CndaQKEtY0NPGr6yG0sgnLg9DVG_A-1728472091-1.2.1.1-muLxKNslq8Rnk2vLJjn.Hde3BsQLaYOgViLsQMfMpiAdwsEx6b86wRBvXfr4lQvVHAP3Qt0VbX3tH429wiWeOK_C6E8ATI8qoXwyegUNnxZtEZ5AV361098t40ECv.FClb5Oe7IFF411rSOYsFZZyNT0Nm.wn_EbAoN6NQUJhWnhCpSoLeKZqXZFATrHJMRrNoBkhO1SKAR4QtrFU3i6.IY0k1hNQ7yKNgF8ZcG1lxxPk3e6wx6ZC61Jam7HXgj67PyQzZn4EOF29j.McziGP0fJD853hmUDbQ0vpqvW_PohIQ.xTKqAXoI1RbWnBMdSRZ_y6D1z_PBjG9Gbimmw3t2Stw4rymAKLd915867vAxvGLvt3Xyn5gtX8kYahRZGcl_fsUGkuGG5mJjEj5rVvQ; CookieConsent={stamp:%27BBm6nMwASe4ynFNjPBHYSULqZm1wPYbH2haALceLzFOHMfZkAAOW2A==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1728472141976%2Cregion:%27id%27}',
+            'dnt': '1',
+            'priority': 'u=0, i',
+            'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"macOS"',
+            'sec-fetch-dest': 'document',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-site': 'none',
+            'sec-fetch-user': '?1',
+            'upgrade-insecure-requests': '1',
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+        });
+
+        // Navigate to the URL
+        const response = await page.goto(url);
+        const data = await page.content();
+
+        // Close the browser
+        await browser.close();
+
+        // Parse the content and filter the results
         const jsonData = parseMatchDetails(data);
 
         const filteredData = jsonData.filter(match => {
@@ -102,6 +119,45 @@ async function getResult(indonesiaOnly = true) {
     } catch (error) {
         console.error('Error:', error);
         return [];
+    }
+}
+
+async function fetchPage(url) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    // Set the headers to match your cURL request
+    await page.setExtraHTTPHeaders({
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'accept-language': 'en-US,en;q=0.9,id;q=0.8',
+        'cache-control': 'max-age=0',
+        'cookie': 'cf_clearance=is9ewkfMjLlZE1CndaQKEtY0NPGr6yG0sgnLg9DVG_A-1728472091-1.2.1.1-muLxKNslq8Rnk2vLJjn.Hde3BsQLaYOgViLsQMfMpiAdwsEx6b86wRBvXfr4lQvVHAP3Qt0VbX3tH429wiWeOK_C6E8ATI8qoXwyegUNnxZtEZ5AV361098t40ECv.FClb5Oe7IFF411rSOYsFZZyNT0Nm.wn_EbAoN6NQUJhWnhCpSoLeKZqXZFATrHJMRrNoBkhO1SKAR4QtrFU3i6.IY0k1hNQ7yKNgF8ZcG1lxxPk3e6wx6ZC61Jam7HXgj67PyQzZn4EOF29j.McziGP0fJD853hmUDbQ0vpqvW_PohIQ.xTKqAXoI1RbWnBMdSRZ_y6D1z_PBjG9Gbimmw3t2Stw4rymAKLd915867vAxvGLvt3Xyn5gtX8kYahRZGcl_fsUGkuGG5mJjEj5rVvQ; CookieConsent={stamp:%27BBm6nMwASe4ynFNjPBHYSULqZm1wPYbH2haALceLzFOHMfZkAAOW2A==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1728472141976%2Cregion:%27id%27}',
+        'dnt': '1',
+        'priority': 'u=0, i',
+        'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"macOS"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'none',
+        'sec-fetch-user': '?1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+    });
+
+    // Navigate to the URL
+    const response = await page.goto(url);
+
+    // Check if the response is successful
+    if (response.ok()) {
+        console.log('Page loaded successfully');
+        const content = await page.content();
+        await browser.close();
+        return content; // Return the page content
+    } else {
+        console.log('Failed to load page:', response.status());
+        await browser.close();
+        throw new Error(`Failed to fetch page: ${response.status()}`);
     }
 }
 
