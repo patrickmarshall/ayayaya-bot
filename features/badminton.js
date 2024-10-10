@@ -6,8 +6,14 @@ const { JSDOM } = require('jsdom');
 const fs = require('fs');
 const { get } = require("http");
 const puppeteer = require('puppeteer');
+const os = require('os');
 
 var _bot
+
+const executablePath = os.platform() === 'linux' 
+    ? '/usr/bin/chromium-browser'  // Linux VPS path
+    : puppeteer.executablePath();   // Use Puppeteer's default on Mac
+
 
 const db = new Database("./badminton.json", {
     snapshots: {
@@ -75,7 +81,10 @@ async function getResult(indonesiaOnly = true) {
             return [];
         }
 
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({
+            executablePath, 
+            args: ['--no-sandbox']
+        });
         const page = await browser.newPage();
 
         // Set the headers to match your cURL request
@@ -106,6 +115,7 @@ async function getResult(indonesiaOnly = true) {
 
         // Parse the content and filter the results
         const jsonData = parseMatchDetails(data);
+        console.log(jsonData);
 
         const filteredData = jsonData.filter(match => {
             return match.team1.player1Flag?.includes('indonesia') || match.team2.player3Flag?.includes('indonesia');
