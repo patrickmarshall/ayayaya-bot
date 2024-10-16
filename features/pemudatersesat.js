@@ -1,8 +1,23 @@
 const { getData } = require("../core/helper")
+require('dotenv').config()
 const cron = require('node-cron')
+const fetch = require("node-fetch")
+const puppeteer = require('puppeteer');
 const Database = require("easy-json-database")
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+
+const apiKey = process.env.OPENAI_API_KEY
 
 const chat_db = new Database("./chatlist.json", {
+    snapshots: {
+        enabled: true,
+        interval: 24 * 60 * 60 * 1000,
+        folder: './backups/'
+    }
+})
+
+const books_db = new Database("./testament.json", {
     snapshots: {
         enabled: true,
         interval: 24 * 60 * 60 * 1000,
@@ -34,12 +49,133 @@ function pemudatersesat(ctx) {
     })
 }
 
-function christian(ctx, id) {
-    getData("https://labs.bible.org/api/?passage=random&type=json")
-        .then(data => {
-            var message = `✝ tersesat~ oh tersesaat~ halle?..luuuya ✝ \n\n${data[0].text} \n\n${data[0].bookname} ${data[0].chapter}:${data[0].verse}`
+// Function to get a random item from an array
+function getRandomItem(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Function to get a random verse from the data
+function getRandomVerse() {
+    const bible = books_db.get('bible');
+
+    // Get a random book
+    const randomBook = getRandomItem(bible);
+
+    // Get a random chapter from the selected book
+    const randomChapter = getRandomItem(randomBook.content);
+
+    // Get a random verse from the selected chapter
+    const randomVerse = Math.floor(Math.random() * randomChapter.verse) + 1;
+
+    return {
+        key: randomBook.key,
+        book: randomBook.name,
+        testament: randomBook.testament,
+        chapter: randomChapter.chapter,
+        verse: randomVerse
+    };
+}
+
+// Function to fetch and extract content as JSON
+async function fetchAndParseAlkitab() {
+
+    const { key, book, testament, chapter, verse } = getRandomVerse();
+    const url = `https://www.imankatolik.or.id/alkitab.php?k=${key}&b=${chapter}&a1=${verse}&a2=${verse}`;
+
+    const response = await fetch(url);
+    const html = await response.text();
+
+    // Parse the HTML using JSDOM
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+
+    // Select the correct table cell containing the verse
+    const verseCell = document.querySelector('td.v + td.v');
+    const text = verseCell ? verseCell.textContent.trim() : '';
+
+    // Format it as JSON
+    const result = {
+        book,
+        testament,
+        chapter,
+        verse,
+        text
+    };
+
+    return result;
+}
+
+async function christian(ctx, id) {
+    const {
+        book,
+        testament,
+        chapter,
+        verse,
+        text
+    } = await fetchAndParseAlkitab();
+
+    const url = 'https://api.openai.com/v1/chat/completions';
+    const data = {
+        model: 'gpt-4o-mini',
+        messages: [
+            {
+                role: 'user',
+                content: `Tolong buatkan renungan harian singkat dengan bahasa yang santai anak muda berdasarkan ayat ini: ${text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`,
+            },
+        ],
+    };
+
+    fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(data),
+        method: 'POST',
+        mode: 'cors',
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((result) => {
+            console.log(result.choices[0].message.content)
+            var message = `🌟🕊️✝ tersesat~ oh tersesaat~ halle?..luuuya ✝🕊️🌟 \n\n${text} \n\n${book} ${chapter}:${verse}\n\n~Renungan Harian~\n${result.choices[0].message.content}`
             send(ctx, id, message)
         })
+        .catch((error) => {
+            console.log('Error fetching chat completion:', error);
+        });
+
+    // var message = `✝ tersesat~ oh tersesaat~ halle?..luuuya ✝ \n\n${text} \n\n${testament}\n${book} ${chapter}:${verse}`
+    // var message = `✝ tersesat~ oh tersesaat~ halle?..luuuya ✝ \n\n${text} \n\n${book} ${chapter}:${verse}`
+    // send(ctx, id, message)
+
+    // (async () => {
+    //     const browser = await puppeteer.launch();
+    //     const page = await browser.newPage();
+        
+    //     // Make sure you are using fresh headers, and let Puppeteer handle the cookies
+    //     await page.setExtraHTTPHeaders({
+    //         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    //         'accept-language': 'en-US,en;q=0.9,id;q=0.8',
+    //         'cache-control': 'max-age=0',
+    //         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+    //     });
+
+    //     await page.goto('https://labs.bible.org/api/?passage=random&type=json');
+    //     // Extract the content inside the <pre> tag
+    //     const preContent = await page.$eval('pre', el => el.textContent);
+    //     // Parse the content as JSON
+    //     const jsonData = JSON.parse(preContent);
+
+    //     var message = `✝ tersesat~ oh tersesaat~ halle?..luuuya ✝ \n\n${jsonData[0].text} \n\n${jsonData[0].bookname} ${jsonData[0].chapter}:${jsonData[0].verse}`
+    //     send(ctx, id, message)
+
+    //     await browser.close();
+    // })();
 }
 
 function buddha(ctx, id) {
@@ -48,12 +184,20 @@ function buddha(ctx, id) {
             var message = `☸️🧘 tersesat~ oh tersesaat~ namo buuu?..ddhaya 🧘☸️ \n\n${data.content} \n\n${data.author}`
             send(ctx, id, message)
         })
+        .catch(err => {
+            var message = `Maaf ya kak, quote agama Buddha lagi error nih 😭`
+            send(ctx, id, message)
+        })
 }
 
 function hindhu(ctx, id) {
     getData("https://quotable.io/random?author=mahatma-gandhi|ramakrishna|sai-baba|swami-vivekananda|chanakya|eknath-easwaran|paramahansa-yogananda&limit=1")
         .then(data => {
             var message = `🛕🪷 tersesat~ oh tersesaat~ Om Swasti?..astu 🪷🛕 \n\n${data.content} \n\n${data.author}`
+            send(ctx, id, message)
+        })
+        .catch(err => {
+            var message = `Maaf ya kak, quote agama Hindu lagi error nih 😭`
             send(ctx, id, message)
         })
 }

@@ -198,7 +198,7 @@ bot.on('video', ctx => {
 })
 
 bot.on('animation', ctx => {
-    animation(ctx)
+    newAnimation(ctx)
 })
 
 bot.on('sticker', ctx => {
@@ -217,5 +217,20 @@ bot.on('photo', ctx => {
 })
 
 // End of Forwarder
+
+// import OpenAI from "openai";
+// const openai = new OpenAI();
+
+// const completion = await openai.chat.completions.create({
+//     model: "gpt-4o-mini",
+//     messages: [
+//         {
+//             role: "user",
+//             content: "Write a haiku about recursion in programming.",
+//         },
+//     ],
+// });
+
+// console.log(completion.choices[0].message);
 
 bot.startPolling()
