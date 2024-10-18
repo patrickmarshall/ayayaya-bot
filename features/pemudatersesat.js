@@ -1,4 +1,4 @@
-const { getData } = require("../core/helper")
+const { getData, promptOpenAI } = require("../core/helper")
 require('dotenv').config()
 const cron = require('node-cron')
 const fetch = require("node-fetch")
@@ -6,8 +6,6 @@ const puppeteer = require('puppeteer');
 const Database = require("easy-json-database")
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
-
-const apiKey = process.env.OPENAI_API_KEY
 
 const chat_db = new Database("./chatlist.json", {
     snapshots: {
@@ -114,40 +112,9 @@ async function christian(ctx, id) {
         text
     } = await fetchAndParseAlkitab();
 
-    const url = 'https://api.openai.com/v1/chat/completions';
-    const data = {
-        model: 'gpt-4o-mini',
-        messages: [
-            {
-                role: 'user',
-                content: `Tolong buatkan renungan harian singkat dengan bahasa yang santai anak muda berdasarkan ayat ini: ${text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`,
-            },
-        ],
-    };
-
-    fetch(url, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(data),
-        method: 'POST',
-        mode: 'cors',
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((result) => {
-            console.log(result.choices[0].message.content)
-            var message = `🌟🕊️✝ tersesat~ oh tersesaat~ halle?..luuuya ✝🕊️🌟 \n\n${text} \n\n${book} ${chapter}:${verse}\n\n~Renungan Harian~\n${result.choices[0].message.content}`
-            send(ctx, id, message)
-        })
-        .catch((error) => {
-            console.log('Error fetching chat completion:', error);
-        });
+    var prompt = await promptOpenAI(`buatkan renungan harian singkat dengan bahasa yang santai ala anak muda berdasarkan ayat ini: ${text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`)
+    var message = `🌟🕊️✝ tersesat~ oh tersesaat~ halle?..luuuya ✝🕊️🌟 \n\n${text} \n\n${book} ${chapter}:${verse}\n\n~Renungan Harian~\n${prompt}`
+    send(ctx, id, message)
 
     // var message = `✝ tersesat~ oh tersesaat~ halle?..luuuya ✝ \n\n${text} \n\n${testament}\n${book} ${chapter}:${verse}`
     // var message = `✝ tersesat~ oh tersesaat~ halle?..luuuya ✝ \n\n${text} \n\n${book} ${chapter}:${verse}`
@@ -180,8 +147,9 @@ async function christian(ctx, id) {
 
 function buddha(ctx, id) {
     getData("https://quotable.io/random?author=buddha|daisaku-ikeda|dalai-lama|bodhidharma|chen-yeng&limit=1")
-        .then(data => {
-            var message = `☸️🧘 tersesat~ oh tersesaat~ namo buuu?..ddhaya 🧘☸️ \n\n${data.content} \n\n${data.author}`
+        .then(async data => {
+            var prompt = await promptOpenAI(`buatkan renungan harian singkat dengan bahasa yang santai ala anak muda berdasarkan quote ini: ${data.content}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`)
+            var message = `☸️🧘 tersesat~ oh tersesaat~ namo buuu?..ddhaya 🧘☸️ \n\n${data.content} \n\n${data.author}\n\n~Apa yang bisa kita ambil dari sini?~\n${prompt}`
             send(ctx, id, message)
         })
         .catch(err => {
@@ -192,8 +160,9 @@ function buddha(ctx, id) {
 
 function hindhu(ctx, id) {
     getData("https://quotable.io/random?author=mahatma-gandhi|ramakrishna|sai-baba|swami-vivekananda|chanakya|eknath-easwaran|paramahansa-yogananda&limit=1")
-        .then(data => {
-            var message = `🛕🪷 tersesat~ oh tersesaat~ Om Swasti?..astu 🪷🛕 \n\n${data.content} \n\n${data.author}`
+        .then(async data => {
+            var prompt = await promptOpenAI(`buatkan renungan harian singkat dengan bahasa yang santai ala anak muda berdasarkan quote ini: ${data.content}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`)
+            var message = `🛕🪷 tersesat~ oh tersesaat~ Om Swasti?..astu 🪷🛕 \n\n${data.content} \n\n${data.author}\n\n~Apa yang bisa kita ambil dari sini?~\n${prompt}`
             send(ctx, id, message)
         })
         .catch(err => {
@@ -206,8 +175,9 @@ function hindhu(ctx, id) {
 function moslem(ctx, id) {
     let rand = Math.floor(Math.random() * 6326) + 1
     getData(`https://api.alquran.cloud/v1/ayah/${rand}/editions/quran-simple,id.indonesian`)
-        .then(data => {
-            var message = `🕋☪🕌 tersesat~ oh tersesaat~ astagfi?..rullah 🕋☪🕌 \n\n${data.data[0].text}\n${data.data[1].text} \n\nQS ${data.data[0].surah.englishName}:${data.data[0].numberInSurah}`
+        .then(async data => {
+            var prompt = await promptOpenAI(`buatkan renungan singkat dengan bahasa yang santai ala anak muda berdasarkan ayat ini: ${data.data[1].text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`)
+            var message = `🕋☪🕌 tersesat~ oh tersesaat~ astagfi?..rullah 🕋☪🕌 \n\n${data.data[0].text}\n${data.data[1].text} \n\nQS ${data.data[0].surah.englishName}:${data.data[0].numberInSurah}\n\n~Renungan~\n${prompt}`
             send(ctx, id, message)
         })
 }

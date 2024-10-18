@@ -1,5 +1,5 @@
 const fetch = require("node-fetch")
-const { getCurrentDate, sleep } = require("../core/helper")
+const { getCurrentDate, sleep, promptOpenAI } = require("../core/helper")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 const { JSDOM } = require('jsdom');
@@ -174,7 +174,7 @@ async function fetchPage(url) {
 function checkMatch() {
     getResult().then(result => {
         if (result.length > 0) {
-            result.forEach(match => {
+            result.forEach(async match => {
                 if (match.duration.includes('LIVEWATCH')) {
                     var listOngoingMatch = result_db.get("ongoing")
                     var isMatchInDB = false;
@@ -341,6 +341,10 @@ async function sendMessage(ctx, data) {
             message += `${match.score}\n`;
         }
         message += `Duration: ${match.duration}`;
+        var prompt = await promptOpenAI(`berikan komentar singkatmu dengan bahasa ringan anak muda tentang jalannya pertandingan pertandingan ini, tentang lawannya misalnya riwayat pertemuan (bisa yang lain juga) ${message}`)
+        console.log(prompt)
+        message += `\n\n${prompt}`
+
         ctx.reply(message);
 
         await sleep(1000);

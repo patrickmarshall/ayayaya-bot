@@ -1,5 +1,7 @@
 const fetch = require("node-fetch")
 
+const apiKey = process.env.OPENAI_API_KEY
+
 async function getData(url = '') {
   const response = await fetch(url)
   return response.json()
@@ -68,11 +70,48 @@ function getCurrentDate() {
   return `${year}-${month}-${day}`;
 }
 
+async function promptOpenAI(prompt) {
+  const url = 'https://api.openai.com/v1/chat/completions';
+  const data = {
+      model: 'gpt-4o-mini',
+      messages: [
+          {
+              role: 'user',
+              content: prompt,
+          },
+      ],
+  };
+
+  try {
+      const response = await fetch(url, {
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(data),
+          method: 'POST',
+          mode: 'cors',
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result.choices[0].message.content;
+
+  } catch (error) {
+      console.log('Error fetching chat completion:', error);
+      return null; // Return null if there was an error, handle accordingly
+  }
+}
+
 module.exports = { 
   getCurrentDate,
   getData, 
   sleep, 
   addZero, 
   msToTime, 
-  daysToString 
+  daysToString,
+  promptOpenAI
 }
