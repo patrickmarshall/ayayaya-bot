@@ -26,7 +26,7 @@ expressApp.listen(port, () => {
 })
 
 bot.use((ctx, next) => {
-    saveChatList(ctx)
+    saveChatList(bot, ctx)
     return next();
 });
 

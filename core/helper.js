@@ -101,7 +101,7 @@ async function promptOpenAI(prompt) {
       return result.choices[0].message.content;
 
   } catch (error) {
-      console.log('Error fetching chat completion:', error);
+      console.error('Error fetching chat completion:', error);
       return null; // Return null if there was an error, handle accordingly
   }
 }

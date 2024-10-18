@@ -36,7 +36,7 @@ function saveToDb(ctx) {
     }
 }
 
-function saveChatList(ctx) {
+function saveChatList(bot, ctx) {
     const group_list = chatlist_db.get("mutual_group_list")
     if (typeof group_list !== "undefined") {
         if (!group_list.some(group => group.id === ctx.chat.id)) {
@@ -44,6 +44,36 @@ function saveChatList(ctx) {
         }
     } else {
         saveToDb(ctx)
+    }
+
+    let message = ``
+    if (ctx.chat.type.includes("group")) {
+        message += `Nama grup: ${ctx.chat.title}\n`
+        message += `Nama Pengirim: ${ctx.from.first_name} ${ctx.from.last_name}\n`
+        if (ctx.from.id != process.env.MY_ACCOUNT) {
+            message += `Username: @${ctx.from.username}\n`
+        }
+    } else if (ctx.chat.type.includes("private")) {
+        message += `Nama Pengirim: ${ctx.chat.first_name} ${ctx.chat.last_name}\n`
+        if (ctx.from.id != process.env.MY_ACCOUNT) {
+            message += `Username: @${ctx.from.username}\n`
+        }
+    }
+    bot.telegram.sendMessage(process.env.CHAT_LOG, message, {})
+    if (ctx.message) {
+        if (ctx.message.photo) {
+            bot.telegram.sendPhoto(process.env.CHAT_LOG, ctx.message.photo[ctx.message.photo.length - 1].file_id, { caption: ctx.message.caption })
+        } else if (ctx.message.sticker) {
+            bot.telegram.sendSticker(process.env.CHAT_LOG, ctx.message.sticker.file_id)
+        } else if (ctx.message.animation) {
+            bot.telegram.sendAnimation(process.env.CHAT_LOG, ctx.message.animation.file_id)
+        } else if (ctx.message.video) {
+            bot.telegram.sendVideo(process.env.CHAT_LOG, ctx.message.video.file_id, { caption: ctx.message.caption })
+        } else if (ctx.message.text) {
+            bot.telegram.sendMessage(process.env.CHAT_LOG, ctx.message.text, {})
+        } else {
+            console.log("Received another type of message:", ctx.message);
+        }
     }
 }
 

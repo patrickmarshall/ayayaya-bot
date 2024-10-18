@@ -30,7 +30,7 @@ function getEventId(ctx, hash, question_id, times) {
             }
         })
         .catch(error => {
-            console.log(error)
+            console.error(error)
         })
 }
 
@@ -64,7 +64,7 @@ function getToken(event_id, question_id, index, ctx, end) {
             voting(event_id, r.access_token, question_id, index, ctx, end)
         })
         .catch(error => {
-            console.log(error)
+            console.error(error)
         })
 }
 
@@ -103,7 +103,7 @@ function voting(event_id, bearer, question_id, index, ctx, end) {
             }
         })
         .catch(error => {
-            console.log(error)
+            console.error(error)
             if (end) {
                 sleep(2000).then(() => {
                     ctx.reply(`Success ${counter[index]} times.`, { reply_to_message_id: ctx.message.message_id })

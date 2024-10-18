@@ -115,7 +115,6 @@ async function getResult(indonesiaOnly = true) {
 
         // Parse the content and filter the results
         const jsonData = parseMatchDetails(data);
-        console.log(jsonData);
 
         const filteredData = jsonData.filter(match => {
             return match.team1.player1Flag?.includes('indonesia') || match.team2.player3Flag?.includes('indonesia');
@@ -342,7 +341,6 @@ async function sendMessage(ctx, data) {
         }
         message += `Duration: ${match.duration}`;
         var prompt = await promptOpenAI(`berikan komentar singkatmu dengan bahasa ringan anak muda tentang jalannya pertandingan pertandingan ini, tentang lawannya misalnya riwayat pertemuan (bisa yang lain juga) ${message}`)
-        console.log(prompt)
         message += `\n\n${prompt}`
 
         ctx.reply(message);
