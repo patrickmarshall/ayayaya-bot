@@ -49,14 +49,14 @@ function saveChatList(bot, ctx) {
     let message = ``
     if (ctx.chat.type.includes("group")) {
         message += `Nama grup: ${ctx.chat.title}\n`
-        message += `Nama Pengirim: ${ctx.from.first_name} ${ctx.from.last_name}\n`
+        message += `Nama Pengirim: ${ctx.from.first_name} ${ctx.from.last_name}`
         if (ctx.from.id != process.env.MY_ACCOUNT) {
-            message += `Username: @${ctx.from.username}\n`
+            message += `\nUsername: @${ctx.from.username}`
         }
     } else if (ctx.chat.type.includes("private")) {
-        message += `Nama Pengirim: ${ctx.chat.first_name} ${ctx.chat.last_name}\n`
+        message += `Nama Pengirim: ${ctx.chat.first_name} ${ctx.chat.last_name}`
         if (ctx.from.id != process.env.MY_ACCOUNT) {
-            message += `Username: @${ctx.from.username}\n`
+            message += `\nUsername: @${ctx.from.username}`
         }
     }
     bot.telegram.sendMessage(process.env.CHAT_LOG, message, {})
