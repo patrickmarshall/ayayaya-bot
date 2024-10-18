@@ -28,17 +28,26 @@ function inline(message, type) {
     return inline_menu
 }
 
-function hears(ctx) {
+function saveToDb(ctx) {
+    if (ctx.chat.type.includes("group")) {
+        chatlist_db.push("mutual_group_list", {"name": ctx.chat.title, "id": ctx.chat.id})
+    } else if (ctx.chat.type.includes("private")) {
+        chatlist_db.push("mutual_group_list", {"name": `${ctx.chat.first_name} ${ctx.chat.last_name}. @${ctx.from.username}`, "id": ctx.chat.id})
+    }
+}
+
+function saveChatList(ctx) {
     const group_list = chatlist_db.get("mutual_group_list")
-    
     if (typeof group_list !== "undefined") {
-        if (!group_list.some(group => group.id === ctx.chat.id) && ctx.chat.type.includes("group")) {
-            chatlist_db.push("mutual_group_list", {"name": ctx.chat.title, "id": ctx.chat.id})
+        if (!group_list.some(group => group.id === ctx.chat.id)) {
+            saveToDb(ctx)
         }
     } else {
-        chatlist_db.push("mutual_group_list", {"name": ctx.chat.title, "id": ctx.chat.id})
+        saveToDb(ctx)
     }
+}
 
+function hears(ctx) {
     if (ctx.chat.type.includes("group")) {
 
     } else if (ctx.from.id != process.env.MY_ACCOUNT) {
@@ -147,5 +156,6 @@ module.exports = {
     photo, 
     processQuery, 
     sticker, 
-    video 
+    video,
+    saveChatList
 }

@@ -7,7 +7,7 @@ const expressApp = express()
 
 
 const { pemudatersesat, christian, buddha, moslem, hindhu, random, prepare, subscribe, selectDetailHour, selectedReligion, selectedHour } = require("./features/pemudatersesat")
-const { hears, photo, video, animation, sticker, processQuery } = require("./features/forwarder")
+const { hears, photo, video, animation, sticker, processQuery, saveChatList } = require("./features/forwarder")
 const { register, updateFixtures, checkDifferences } = require("./features/reminder")
 const { greetings, help, who } = require("./features/greetings")
 const { games, sendGames } = require("./features/game")
@@ -24,6 +24,11 @@ expressApp.get("/", (req, res) => {
 expressApp.listen(port, () => {
     console.log(`Listening on port ${port}`)
 })
+
+bot.use((ctx, next) => {
+    saveChatList(ctx)
+    return next();
+});
 
 // Start of Greetings
 
@@ -185,7 +190,7 @@ bot.command('subscribebadminton', ctx => {
 
 setupBadmintonBot(bot)
 
-// End of Badmonton
+// End of Badminton
 
 // Start of Forwarder
 
