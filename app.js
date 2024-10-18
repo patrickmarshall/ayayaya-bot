@@ -198,7 +198,7 @@ bot.on('video', ctx => {
 })
 
 bot.on('animation', ctx => {
-    newAnimation(ctx)
+    animation(ctx)
 })
 
 bot.on('sticker', ctx => {
