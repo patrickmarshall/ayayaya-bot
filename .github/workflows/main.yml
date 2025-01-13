@@ -29,13 +29,15 @@ jobs:
         git fetch origin
 
         # Switch to develop branch
-        git checkout develop
+        # git checkout develop
+        git checkout master
 
         # Cherry-pick the latest commit from the triggering branch
         git cherry-pick ${{ github.event.head_commit.id }}
 
         # Push changes to the develop branch
-        git push origin develop
+        # git push origin develop
+        git push origin master
 
     # Handle Cherry-pick Conflicts
     - name: Handle cherry-pick conflicts
