@@ -1,0 +1,46 @@
+name: Cherry-pick to develop
+
+on:
+  push:
+    branches:
+      # - 'v[0-9]+.[0-9]+' # Matches branches like v1.23, v10.45, etc.
+      - 'testing'
+
+jobs:
+  cherry_pick:
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
+
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Configure Git
+    - name: Set up Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    # Cherry-pick the commit
+    - name: Cherry-pick commit to develop
+      run: |
+        # Fetch all branches
+        git fetch origin
+
+        # Switch to develop branch
+        git checkout develop
+
+        # Cherry-pick the latest commit from the triggering branch
+        git cherry-pick ${{ github.event.head_commit.id }}
+
+        # Push changes to the develop branch
+        git push origin develop
+
+    # Handle Cherry-pick Conflicts
+    - name: Handle cherry-pick conflicts
+      if: failure() # Runs only if the cherry-pick step fails
+      run: |
+        echo "Cherry-pick failed due to conflicts. Aborting..."
+        git cherry-pick --abort
+        exit 1
