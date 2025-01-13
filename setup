@@ -1,1 +1,1 @@
-source ~/.bash_profile ; npm install pm2@latest -g ; cd /Users/administrator/Movies/TV/Media.localized/untitled\ folder/ayayaya-bot ; git reset --hard ; git pull origin master ; pm2 restart all
+source ~/.bash_profile ; npm install pm2@latest -g ; git reset --hard ; git pull origin master ; pm2 restart all
