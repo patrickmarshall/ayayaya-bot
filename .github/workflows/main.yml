@@ -8,42 +8,41 @@ on:
 
 jobs:
   cherry_pick:
-    # runs-on: ubuntu-latest
     runs-on: self-hosted
 
     steps:
-    # Checkout the repository
+    # Checkout the repository with full history
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     # Configure Git
     - name: Set up Git
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global core.autocrlf false
+
+    # Ensure clean workspace
+    - name: Clean workspace
+      run: |
+        git clean -fdx
 
     # Cherry-pick the commit
     - name: Cherry-pick commit to develop
       run: |
-        # Fetch all branches
-        git fetch origin
-
-        # Switch to develop branch
         # git checkout develop
-        git checkout master
-        git pull origin master
-
-        # Cherry-pick the latest commit from the triggering branch
+        git fetch origin master
+        git reset --hard origin/master
         echo "Head Commit ID: ${{ github.event.head_commit.id }}"
         git cherry-pick ${{ github.event.head_commit.id }}
-
-        # Push changes to the develop branch
         # git push origin develop
         git push origin master
 
     # Handle Cherry-pick Conflicts
     - name: Handle cherry-pick conflicts
-      if: failure() # Runs only if the cherry-pick step fails
+      if: failure()
       run: |
         echo "Cherry-pick failed due to conflicts. Aborting..."
         git cherry-pick --abort
