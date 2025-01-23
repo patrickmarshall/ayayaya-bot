@@ -28,11 +28,14 @@ jobs:
       run: |
         # git checkout develop
         git fetch origin master
+        git checkout master
         git reset --hard origin/master
         echo "Head Commit ID: ${{ github.event.head_commit.id }}"
         git cherry-pick ${{ github.event.head_commit.id }}
         # git push origin develop
-        git push
+        git branch
+        git status
+        git push origin master
 
     # Handle Cherry-pick Conflicts
     - name: Handle cherry-pick conflicts
