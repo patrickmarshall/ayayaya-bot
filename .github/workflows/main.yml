@@ -22,12 +22,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global core.autocrlf false
-
-    # Ensure clean workspace
-    - name: Clean workspace
-      run: |
-        git clean -fdx
 
     # Cherry-pick the commit
     - name: Cherry-pick commit to develop
@@ -38,7 +32,7 @@ jobs:
         echo "Head Commit ID: ${{ github.event.head_commit.id }}"
         git cherry-pick ${{ github.event.head_commit.id }}
         # git push origin develop
-        git push origin master
+        git push
 
     # Handle Cherry-pick Conflicts
     - name: Handle cherry-pick conflicts
