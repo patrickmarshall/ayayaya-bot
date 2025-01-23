@@ -33,8 +33,6 @@ jobs:
         echo "Head Commit ID: ${{ github.event.head_commit.id }}"
         git cherry-pick ${{ github.event.head_commit.id }}
         # git push origin develop
-        git branch
-        git status
         git push origin master
 
     # Handle Cherry-pick Conflicts
