@@ -33,6 +33,7 @@ jobs:
         git checkout master
 
         # Cherry-pick the latest commit from the triggering branch
+        echo "Head Commit ID: ${{ github.event.head_commit.id }}"
         git cherry-pick ${{ github.event.head_commit.id }}
 
         # Push changes to the develop branch
