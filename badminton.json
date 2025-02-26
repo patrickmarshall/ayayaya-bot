@@ -148,6 +148,19 @@
                     "city": "Hangzhou, China"
                 }
             ]
+        }, 
+        {
+            "year": 2025,
+            "tournamentList":[
+                {
+                    "name": "YONEX German Open 2025",
+                    "startDate": "2025-02-25",
+                    "endDate": "2025-03-02",
+                    "link": "https://bwfworldtour.bwfbadminton.com/tournament/5242/yonex-german-open-2025",
+                    "prizeMoney": "$240,000",
+                    "city": "Westenergie Sporthalle, Mülheim an der Ruhr, Germany"
+                }
+            ]
         }
     ]
 }

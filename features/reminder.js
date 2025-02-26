@@ -103,14 +103,13 @@ function sendReminder(time, fixture = listFixtures[0], _listChat) {
             stadium += " Stadium"
         }
         const day = daysToString(new Date(fixture.matchdate_tdt))
-        const hours = addZero(new Date(fixture.matchdate_tdt).getHours().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
-        const minutes = addZero(new Date(fixture.matchdate_tdt).getMinutes().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
+        const date = new Date(fixture.matchdate_tdt).toLocaleString("en-US", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
         var dates = ""
         if (time.includes("hari")) {
             dates += `${day}, `
         }
-        dates += `${hours}:${minutes} WIB`
+        dates += `${date} WIB`
 
         copy_bot.telegram.sendMessage(
             chatId,
