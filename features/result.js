@@ -48,71 +48,68 @@ function compareMatch(match) {
 }
 
 function sendMessage(match, list_chat) {
-    list_chat.forEach(chatId => {
-        // find winner
-        var result = ""
-        if (match.hometeamabbrevname_t == "MUN") {
-            if (match.resultdata_t.HomeResult.Score > match.resultdata_t.AwayResult.Score) {
-                result = `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n` +
-                    `~ GLORY GLORY MAN UNITED ~\n` +
-                    `~ GLORY GLORY MAN UNITED ~`
-            } else if (match.resultdata_t.AwayResult.Score > match.resultdata_t.HomeResult.Score) {
-                result = `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`
-            } else {
-                result = `😐😐😐😬😬😬 HMMM MU DRAW HMMM 😬😬😬😐😐😐`
-            }
+    // Extract scores
+    const homeScore = match.resultdata_t.HomeResult.Score;
+    const awayScore = match.resultdata_t.AwayResult.Score;
+    let result = "";
+    let penaltyShootoutDetail = "";
+
+    // Check if the match was decided by penalty shootout
+    if (match.resultdata_t.IsMatchExtendedToShootOut) {
+        const homePenalties = match.resultdata_t.HomeResult.PenaltyShootEntityList || [];
+        const awayPenalties = match.resultdata_t.AwayResult.PenaltyShootEntityList || [];
+
+        const homePenaltiesFormatted = homePenalties.map(p => p.Outcome === "Scored" ? "🟩" : "🟥").join(" ");
+        const awayPenaltiesFormatted = awayPenalties.map(p => p.Outcome === "Scored" ? "🟩" : "🟥").join(" ");
+
+        const homePenaltiesScored = homePenalties.filter(p => p.Outcome === "Scored").length;
+        const awayPenaltiesScored = awayPenalties.filter(p => p.Outcome === "Scored").length;
+
+        penaltyShootoutDetail = `⚽ Penalty Shootout ⚽\n${match.hometeam_t}: ${homePenaltiesFormatted} (${homePenaltiesScored})\n${match.awayteam_t}: ${awayPenaltiesFormatted} (${awayPenaltiesScored})\n\n`;
+
+        if (homePenaltiesScored > awayPenaltiesScored) {
+            result = `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n~ GLORY GLORY MAN UNITED ~\n~ GLORY GLORY MAN UNITED ~`;
+        } else if (awayPenaltiesScored > homePenaltiesScored) {
+            result = `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`;
         } else {
-            if (match.resultdata_t.HomeResult.Score > match.resultdata_t.AwayResult.Score) {
-                result = `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`
-            } else if (match.resultdata_t.AwayResult.Score > match.resultdata_t.HomeResult.Score) {
-                result = `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n` +
-                    `~ GLORY GLORY MAN UNITED ~\n` +
-                    `~ GLORY GLORY MAN UNITED ~`
-            } else {
-                result = `😐😐😐😬😬😬 HMMM MU DRAW HMMM 😬😬😬😐😐😐`
-            }
+            result = `😐😐😐😬😬😬 HMMM MU DRAW HMMM 😬😬😬😐😐😐`;
         }
+    } else {
+        // Determine result in normal time
+        const homeWin = homeScore > awayScore;
+        const awayWin = awayScore > homeScore;
 
-        // Stadium
-        var stadium = match.venuename_t
-        if (!match.venuename_t.toLowerCase().includes("stadium")) {
-            stadium += " Stadium"
+        if (match.hometeamabbrevname_t === "MUN") {
+            result = homeWin
+                ? `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n~ GLORY GLORY MAN UNITED ~\n~ GLORY GLORY MAN UNITED ~`
+                : awayWin
+                    ? `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`
+                    : `😐😐😐😬😬😬 HMMM MU DRAW HMMM 😬😬😬😐😐😐`;
+        } else {
+            result = homeWin
+                ? `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`
+                : awayWin
+                    ? `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n~ GLORY GLORY MAN UNITED ~\n~ GLORY GLORY MAN UNITED ~`
+                    : `😐😐😐😬😬😬 HMMM MU DRAW HMMM 😬😬😬😐😐😐`;
         }
+    }
 
-        // Goal
-        // Format home team goals
-        let homeGoals = '';
-        if (match.resultdata_t.HomeResult.Score > 0) {
-            homeGoals = formatTeamGoals(`${match.hometeam_t}`, match.resultdata_t.HomeResult.GoalDetailEntityList);
-        }
+    // Format stadium name
+    let stadium = match.venuename_t.toLowerCase().includes("stadium") ? match.venuename_t : `${match.venuename_t} Stadium`;
 
-        // Format away team goals
-        let awayGoals = '';
-        if (match.resultdata_t.AwayResult.Score > 0) {
-            awayGoals = formatTeamGoals(`${match.awayteam_t}`, match.resultdata_t.AwayResult.GoalDetailEntityList);
-        }
+    // Format goal details
+    let homeGoals = homeScore > 0 ? formatTeamGoals(`${match.hometeam_t}`, match.resultdata_t.HomeResult.GoalDetailEntityList) : '';
+    let awayGoals = awayScore > 0 ? formatTeamGoals(`${match.awayteam_t}`, match.resultdata_t.AwayResult.GoalDetailEntityList) : '';
 
-        let formattedGoals = ``;
+    let formattedGoals = homeGoals || awayGoals ? `🥅 Goal Scorer 🥅\n${homeGoals}\n\n${awayGoals}`.trim() : '';
 
-        if (homeGoals != '' || awayGoals != '') {
-            formattedGoals += `🥅 Goal Scorer 🥅\n`;
-            // Combine and output the formatted goals
-            if (homeGoals != '') {
-                formattedGoals += `${homeGoals}\n\n`;
-            }
-            formattedGoals += `${awayGoals}`;
-        }
+    // Construct the message once
+    const message = `${result}\n\n` +
+        `${match.competitionname_t}\n${stadium}\n${match.hometeam_t} vs ${match.awayteam_t}\n` +
+        `${homeScore} - ${awayScore}\n\n${formattedGoals}\n\n${penaltyShootoutDetail}`;
 
-        _bot.telegram.sendMessage(
-            chatId,
-            `${result}\n\n` +
-            `${match.competitionname_t}\n` +
-            `${stadium}\n` +
-            `${match.hometeam_t} vs ${match.awayteam_t}\n` +
-            `${match.resultdata_t.HomeResult.Score} - ${match.resultdata_t.AwayResult.Score}\n\n` +
-            `${formattedGoals}\n\n`
-        )
-    })
+    // Send message to all chat IDs
+    list_chat.forEach(chatId => _bot.telegram.sendMessage(chatId, message));
 }
 
 // Function to format goals for a team
