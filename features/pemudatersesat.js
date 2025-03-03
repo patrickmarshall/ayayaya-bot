@@ -112,7 +112,13 @@ async function christian(ctx, id) {
         text
     } = await fetchAndParseAlkitab();
 
-    var prompt = await promptOpenAI(`buatkan renungan harian singkat dengan bahasa yang santai ala anak muda berdasarkan ayat ini: ${text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`)
+    var prompt = await promptOpenAI(`Buatkan renungan harian singkat dengan bahasa santai ala anak muda berdasarkan kutipan berikut: '${text}'. Pastikan renungan ini tidak hanya terasa relevan dan mudah dipahami, tetapi juga memiliki kekuatan rohani yang mendalam, seperti yang ditulis oleh seorang rohaniwan berpengalaman.
+
+Sebelum menulis renungan, pahami konteks penuh dari ayat yang dikutip. Jika ayat ini merupakan bagian dari sebuah perikop yang lebih besar, gunakan pemahaman menyeluruh terhadap perikop tersebut agar pesan renungan tetap akurat dan tidak terdistorsi.
+
+Jika diperlukan, tambahkan ayat Alkitab lain yang memiliki tema serupa untuk memperkaya makna dan memberikan refleksi yang lebih dalam. Jangan hanya menyampaikan makna permukaan—ajak pembaca untuk merenungkan bagaimana firman ini berbicara dalam hidup mereka secara nyata, membangun iman, dan menginspirasi perubahan hati.
+
+Gunakan bahasa yang santai, tapi tetap membawa bobot spiritual yang kuat. Buat renungan terasa hidup, relevan, dan menggugah jiwa, seolah-olah ditulis oleh seorang rohaniwan yang benar-benar memahami kehidupan sehari-hari anak muda. Tulis renungan dalam bentuk teks sederhana, tanpa hiasan, judul, atau salam pembuka/penutup.`)
     var message = `🌟🕊️✝ tersesat~ oh tersesaat~ halle?..luuuya ✝🕊️🌟 \n\n${text} \n\n${book} ${chapter}:${verse}\n\n~Renungan Harian~\n${prompt}`
     send(ctx, id, message)
 
@@ -357,7 +363,11 @@ function sendDailyVerse() {
     const subscribers = chat_db.get('subscribers');
     if (subscribers && Array.isArray(subscribers)) {
 
-        const currentHour = new Date().getHours();
+        const currentHour = parseInt(new Date().toLocaleString("en-US", { 
+            timeZone: "Asia/Jakarta", 
+            hour: "2-digit", 
+            hour12: false 
+          }), 10);
         subscribers.forEach(subscriber => {
             if (subscriber.hour === currentHour) {
                 switch (subscriber.religion) {
