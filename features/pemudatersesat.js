@@ -129,7 +129,7 @@ Gunakan bahasa yang santai, tapi tetap membawa bobot spiritual yang kuat. Buat r
     // (async () => {
     //     const browser = await puppeteer.launch();
     //     const page = await browser.newPage();
-        
+
     //     // Make sure you are using fresh headers, and let Puppeteer handle the cookies
     //     await page.setExtraHTTPHeaders({
     //         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -179,13 +179,26 @@ function hindhu(ctx, id) {
 
 // english -> change after comma to en.asad
 function moslem(ctx, id) {
-    let rand = Math.floor(Math.random() * 6326) + 1
+    let rand = Math.floor(Math.random() * 6326) + 1;
     getData(`https://api.alquran.cloud/v1/ayah/${rand}/editions/quran-simple,id.indonesian`)
         .then(async data => {
-            var prompt = await promptOpenAI(`buatkan renungan singkat dengan bahasa yang santai ala anak muda berdasarkan ayat ini: ${data.data[1].text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`)
-            var message = `🕋☪🕌 tersesat~ oh tersesaat~ astagfi?..rullah 🕋☪🕌 \n\n${data.data[0].text}\n${data.data[1].text} \n\nQS ${data.data[0].surah.englishName}:${data.data[0].numberInSurah}\n\n~Renungan~\n${prompt}`
-            send(ctx, id, message)
+            if (!data || !data.data || data.data.length < 2) {
+                throw new Error("Invalid response from API");
+            }
+
+            try {
+                var prompt = await promptOpenAI(`buatkan renungan singkat dengan bahasa yang santai ala anak muda berdasarkan ayat ini: ${data.data[1].text}, renungan dikirim dalam bentuk teks jadi tidak perlu ada hiasan dan title dan salam.`);
+                var message = `🕋☪🕌 tersesat~ oh tersesaat~ astagfi?..rullah 🕋☪🕌 \n\n${data.data[0].text}\n${data.data[1].text} \n\nQS ${data.data[0].surah.englishName}:${data.data[0].numberInSurah}\n\n~Renungan~\n${prompt}`;
+                send(ctx, id, message);
+            } catch (error) {
+                console.error("Error generating reflection:", error);
+                moslem(ctx, id)
+            }
         })
+        .catch(error => {
+            console.error("Error fetching Quran data:", error);
+            moslem(ctx, id)
+        });
 }
 
 function random(ctx, id) {
@@ -350,7 +363,7 @@ function selectedHour(ctx, hour) {
             chat_db.set('subscribers', subscribers);
 
             const religion = subscribers[subscriberIndex].religion.charAt(0).toUpperCase() + subscribers[subscriberIndex].religion.slice(1)
-            ctx.reply("Oke kak! Aku bakal kirimin kamu ayat dari agama "+ religion +" setiap jam " + hour + ":00 ya! 🥳")
+            ctx.reply("Oke kak! Aku bakal kirimin kamu ayat dari agama " + religion + " setiap jam " + hour + ":00 ya! 🥳")
         } else {
             // subscriber not found
         }
@@ -363,11 +376,11 @@ function sendDailyVerse() {
     const subscribers = chat_db.get('subscribers');
     if (subscribers && Array.isArray(subscribers)) {
 
-        const currentHour = parseInt(new Date().toLocaleString("en-US", { 
-            timeZone: "Asia/Jakarta", 
-            hour: "2-digit", 
-            hour12: false 
-          }), 10);
+        const currentHour = parseInt(new Date().toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta",
+            hour: "2-digit",
+            hour12: false
+        }), 10);
         subscribers.forEach(subscriber => {
             if (subscriber.hour === currentHour) {
                 switch (subscriber.religion) {

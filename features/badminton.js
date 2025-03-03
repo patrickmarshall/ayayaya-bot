@@ -40,7 +40,8 @@ const result_db = new Database("./result.json", {
 })
 
 cron.schedule('*/15 * * * *', () => {
-    checkMatch()
+    // still bugged
+    // checkMatch()
 });
 
 function subscribeBadminton(ctx) {
