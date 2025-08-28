@@ -67,13 +67,21 @@ function sendMessage(match, list_chat) {
 
         penaltyShootoutDetail = `⚽ Penalty Shootout ⚽\n${match.hometeam_t}: ${homePenaltiesFormatted} (${homePenaltiesScored})\n${match.awayteam_t}: ${awayPenaltiesFormatted} (${awayPenaltiesScored})\n\n`;
 
-        if (homePenaltiesScored > awayPenaltiesScored) {
-            result = `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n~ GLORY GLORY MAN UNITED ~\n~ GLORY GLORY MAN UNITED ~`;
-        } else if (awayPenaltiesScored > homePenaltiesScored) {
-            result = `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`;
+        const isHomeWinner = homePenaltiesScored > awayPenaltiesScored;
+        if (match.hometeamabbrevname_t === "MUN") {
+            if (isHomeWinner) {
+                result = `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n~ GLORY GLORY MAN UNITED ~\n~ GLORY GLORY MAN UNITED ~`;
+            } else {
+                result = `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`;
+            }
         } else {
-            result = `😐😐😐😬😬😬 HMMM MU DRAW HMMM 😬😬😬😐😐😐`;
+            if (isHomeWinner) {
+                result = `😭😭😭😔😔😔 HUFT MU LOSE HUFT 😔😔😔😭😭😭`;
+            } else {
+                result = `🎉🎉🎉🥳🥳🥳 YEY MU WINNER YEY 🥳🥳🥳🎉🎉🎉\n~ GLORY GLORY MAN UNITED ~\n~ GLORY GLORY MAN UNITED ~`;
+            }
         }
+    
     } else {
         // Determine result in normal time
         const homeWin = homeScore > awayScore;
