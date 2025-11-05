@@ -12,7 +12,7 @@ const { register, updateFixtures, checkDifferences } = require("./features/remin
 const { greetings, help, who } = require("./features/greetings")
 const { games, sendGames } = require("./features/game")
 const { vote } = require("./features/voters")
-const { updateDotaHeroes, randomhero } = require("./features/dota")
+const { updateDotaHeroes, randomhero, randomhero2, randomhero2_by_attr } = require("./features/dota")
 const { getLastMatch, setupBot, register_result } = require("./features/result")
 const { currentFlashdeal, nextFlashdeal, insertComponent } = require("./features/tokopedia")
 const { hasilIndonesia, hasilSemua, setupBadmintonBot, subscribeBadminton } = require("./features/badminton")
@@ -128,6 +128,11 @@ bot.action((action, ctx) => {
         }
     }
 
+    else if (action.startsWith('dota_attr_')) {
+        const attr = action.substring('dota_attr_'.length)
+        randomhero2_by_attr(ctx, attr)
+    }
+
     // Process Query of Forwarder.js starts from else
     else {
         if (ctx.callbackQuery?.message?.text && ctx.callbackQuery.message.text.includes("game")) {
@@ -156,8 +161,12 @@ bot.command('updatehero', _ => {
     updateDotaHeroes()
 })
 
-bot.command('randomhero', ctx => {
+bot.command('randomallhero', ctx => {
     randomhero(ctx)
+})
+
+bot.command('randomhero', ctx => {
+    randomhero2(ctx)
 })
 
 // End of Dota
