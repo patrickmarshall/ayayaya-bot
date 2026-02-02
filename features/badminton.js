@@ -1,5 +1,5 @@
 const fetch = require("node-fetch")
-const { getCurrentDate, sleep, promptOpenAI } = require("../core/helper")
+const { getCurrentDate, sleep, promptOpenAI, chat_db } = require("../core/helper")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 const { JSDOM } = require('jsdom');
@@ -16,14 +16,6 @@ const executablePath = os.platform() === 'linux'
 
 
 const db = new Database("./badminton.json", {
-    snapshots: {
-        enabled: true,
-        interval: 24 * 60 * 60 * 1000,
-        folder: './backups/'
-    }
-})
-
-const chat_db = new Database("./chatlist.json", {
     snapshots: {
         enabled: true,
         interval: 24 * 60 * 60 * 1000,

@@ -1,4 +1,4 @@
-const { getData, promptOpenAI } = require("../core/helper")
+const { getData, promptOpenAI, chat_db } = require("../core/helper")
 require('dotenv').config()
 const cron = require('node-cron')
 const fetch = require("node-fetch")
@@ -6,14 +6,6 @@ const puppeteer = require('puppeteer');
 const Database = require("easy-json-database")
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
-
-const chat_db = new Database("./chatlist.json", {
-    snapshots: {
-        enabled: true,
-        interval: 24 * 60 * 60 * 1000,
-        folder: './backups/'
-    }
-})
 
 const books_db = new Database("./testament.json", {
     snapshots: {

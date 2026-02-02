@@ -106,6 +106,15 @@ async function promptOpenAI(prompt) {
   }
 }
 
+const Database = require("easy-json-database")
+const chat_db = new Database("./chatlist.json", {
+    snapshots: {
+        enabled: true,
+        interval: 24 * 60 * 60 * 1000,
+        folder: './backups/'
+    }
+})
+
 module.exports = { 
   getCurrentDate,
   getData, 
@@ -113,5 +122,6 @@ module.exports = {
   addZero, 
   msToTime, 
   daysToString,
-  promptOpenAI
+  promptOpenAI,
+  chat_db
 }

@@ -2,7 +2,7 @@ const fetch = require("node-fetch")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 
-const { sleep, addZero, msToTime, daysToString } = require("../core/helper")
+const { sleep, addZero, msToTime, daysToString, chat_db } = require("../core/helper")
 
 var copy_bot
 
@@ -13,14 +13,6 @@ const minuteInMilisecond = 60000
 
 cron.schedule('*/15 * * * *', () => {
     checkDifferences()
-})
-
-const chat_db = new Database("./chatlist.json", {
-    snapshots: {
-        enabled: true,
-        interval: 24 * 60 * 60 * 1000,
-        folder: './backups/'
-    }
 })
 
 const fixtures_db = new Database("./fixtures.json", {

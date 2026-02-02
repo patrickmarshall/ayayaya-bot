@@ -1,19 +1,12 @@
 const fetch = require("node-fetch")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
+const { chat_db } = require("../core/helper")
 
 var _bot
 var _ctx
 
 const result_db = new Database("./result.json", {
-    snapshots: {
-        enabled: true,
-        interval: 24 * 60 * 60 * 1000,
-        folder: './backups/'
-    }
-})
-
-const chat_db = new Database("./chatlist.json", {
     snapshots: {
         enabled: true,
         interval: 24 * 60 * 60 * 1000,
