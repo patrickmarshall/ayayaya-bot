@@ -128,7 +128,7 @@ function register(ctx) {
     if (typeof array !== "undefined") {
         if (!array.includes(ctx.chat.id)) {
             chat_db.push("list", ctx.chat.id)
-            ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main.")
+            ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main, sekalian aku kabarin juga hasil pertandingannya nanti.")
         } else {
             const index = array.indexOf(ctx.chat.id)
             array.splice(index, 1)
@@ -138,7 +138,7 @@ function register(ctx) {
         }
     } else {
         chat_db.push("list", ctx.chat.id)
-        ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main.")
+        ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main, sekalian aku kabarin juga hasil pertandingannya nanti.")
     }
 }
 

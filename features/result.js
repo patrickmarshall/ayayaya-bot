@@ -127,21 +127,22 @@ function formatTeamGoals(teamName, goals) {
 }
 
 function register_result(ctx) {
-    var array = chat_db.get("result_list")
+    var array = chat_db.get("list")
+
     if (typeof array !== "undefined") {
         if (!array.includes(ctx.chat.id)) {
-            chat_db.push("result_list", ctx.chat.id)
-            ctx.reply("Okeee! aku kabarin hasil pertandingan Manchester United ya disini.")
+            chat_db.push("list", ctx.chat.id)
+            ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main, sekalian aku kabarin juga hasil pertandingannya nanti.")
         } else {
             const index = array.indexOf(ctx.chat.id)
             array.splice(index, 1)
-            chat_db.set("result_list", array)
+            chat_db.set("list", array)
 
             ctx.reply("Gamau dikabarin yaudah")
         }
     } else {
-        chat_db.push("result_list", ctx.chat.id)
-        ctx.reply("Okeee! aku kabarin hasil pertandingan Manchester United ya disini.")
+        chat_db.push("list", ctx.chat.id)
+        ctx.reply("Iy bgst. Kuingetin disini ya kalo Manchester United mau main, sekalian aku kabarin juga hasil pertandingannya nanti.")
     }
 }
 
