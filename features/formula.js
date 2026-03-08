@@ -129,7 +129,7 @@ async function getF1RaceResult(year, meetingKey, country) {
 
     try {
         const browser = await puppeteer.launch({
-            executablePath, 
+            dumpio: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         const page = await browser.newPage();
