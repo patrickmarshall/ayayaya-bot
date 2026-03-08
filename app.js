@@ -16,7 +16,7 @@ const { updateDotaHeroes, randomhero, randomhero2, randomhero2_by_attr } = requi
 const { getLastMatch, setupBot, register_result } = require("./features/result")
 const { currentFlashdeal, nextFlashdeal, insertComponent } = require("./features/tokopedia")
 const { hasilIndonesia, hasilSemua, setupBadmintonBot, subscribeBadminton } = require("./features/badminton")
-const { subscribeF1, setupF1Bot, sendLastF1Result, sendLastF1Qualifying } = require("./features/formula")
+const { subscribeF1, setupF1Bot, sendLastF1Result, sendLastF1Qualifying, nextRace } = require("./features/formula")
 
 expressApp.get("/", (req, res) => {
     res.send("Working...")
@@ -215,6 +215,10 @@ bot.command('lastqualifying', (ctx) => {
 
 bot.command('raceupdate', (ctx) => {
     subscribeF1(ctx); 
+});
+
+bot.command('nextrace', (ctx) => {
+    nextRace(ctx);
 });
 
 // End of Formula 1

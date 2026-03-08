@@ -90,18 +90,31 @@ function checkDifferences(ctx = null, demand = false) {
 
 function sendReminder(time, fixture = listFixtures[0], _listChat) {
     _listChat.forEach(chatId => {
-        var stadium = fixture.venuename_t
+        var stadium = fixture.venuename_t;
         if (!fixture.venuename_t.toLowerCase().includes("stadium")) {
-            stadium += " Stadium"
+            stadium += " Stadium";
         }
-        const day = daysToString(new Date(fixture.matchdate_tdt))
-        const date = new Date(fixture.matchdate_tdt).toLocaleString("en-US", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+        
+        const matchDate = new Date(fixture.matchdate_tdt);
+        const day = matchDate.toLocaleDateString("id-ID", { 
+            timeZone: "Asia/Jakarta", 
+            weekday: "long" 
+        });
+        
+        const timeString = matchDate.toLocaleString("en-US", { 
+            timeZone: "Asia/Jakarta", 
+            hour: "2-digit", 
+            minute: "2-digit", 
+            hourCycle: "h23" 
+        });
 
-        var dates = ""
+        var dates = "";
+        const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
+        
         if (time.includes("hari")) {
-            dates += `${day}, `
+            dates += `${capitalizedDay}, `;
         }
-        dates += `${date} WIB`
+        dates += `${timeString} WIB`;
 
         copy_bot.telegram.sendMessage(
             chatId,
@@ -110,8 +123,8 @@ function sendReminder(time, fixture = listFixtures[0], _listChat) {
             `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` +
             `${stadium}\n` +
             dates
-        )
-    })
+        );
+    });
 }
 
 function register(ctx) {

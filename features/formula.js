@@ -5,10 +5,6 @@ const puppeteer = require('puppeteer');
 const os = require('os');
 const { chat_db } = require("../core/helper");
 
-const executablePath = os.platform() === 'linux' 
-    ? '/usr/bin/chromium-browser'  // Linux VPS path
-    : puppeteer.executablePath();   // Use Puppeteer's default on Mac
-
 // F1 Calendar Database (The JSON you provided)
 const calendar_db = new Database("./f1_calendar.json");
 
@@ -23,9 +19,14 @@ const f1_result_db = new Database("./f1_result.json", {
 
 // Run every 15 minutes
 cron.schedule('*/15 * * * *', () => {
+    checkF1Reminders();
     checkF1Qualifying();
     checkF1Race();
 });
+
+const hourInMilisecond = 3600000
+const minuteInMilisecond = 60000
+var _bot;
 
 /**
  * Core automation logic
@@ -155,14 +156,13 @@ function getCurrentF1Race() {
     if (!seasonData) return null;
 
     for (const race of seasonData.tournamentList) {
-        const startDate = new Date(race.startDate);
-        let endDate = new Date(race.endDate);
-        
-        // Add 1 day to the endDate. F1 races are on Sunday, 
-        // this ensures we can fetch results on Monday morning WIB!
-        endDate.setDate(endDate.getDate() + 1);
+        // Start looking 2 hours BEFORE the race starts (to catch early prep)
+        // and keep looking until 12 hours AFTER the race ends.
+        const startTime = new Date(race.raceTime).getTime() - (2 * hourInMilisecond);
+        const endTime = new Date(race.raceTime).getTime() + (12 * hourInMilisecond);
+        const now = currentDate.getTime();
 
-        if (currentDate >= startDate && currentDate <= endDate) {
+        if (now >= startTime && now <= endTime) {
             return race;
         }
     }
@@ -448,25 +448,136 @@ async function sendLastF1Qualifying(ctx) {
 function getLastCompletedF1Race() {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    
     let tournaments = calendar_db.get('tournaments');
     let seasonData = tournaments.find(t => t.year === currentYear);
-    
     if (!seasonData) return null;
 
     let lastRace = null;
-    
     for (const race of seasonData.tournamentList) {
-        const startDate = new Date(race.startDate);
-        
-        if (currentDate >= startDate) {
+        const raceTime = new Date(race.raceTime);
+        // If the race time has passed, it's a candidate for "Last Race"
+        if (currentDate > raceTime) {
             lastRace = race;
         } else {
             break; 
         }
     }
-    
     return lastRace;
+}
+
+function checkF1Reminders() {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    
+    let tournaments = calendar_db.get('tournaments');
+    let seasonData = tournaments.find(t => t.year === currentYear);
+    
+    if (!seasonData) return;
+
+    const listChat = chat_db.get("f1_list") || [];
+    if (listChat.length === 0) return;
+
+    for (const race of seasonData.tournamentList) {
+        if (!race.raceTime) continue; 
+
+        const raceDate = new Date(race.raceTime);
+        const qualiDate = new Date(race.qualyTime);
+
+        const now = currentDate.getTime();
+        const raceDiff = raceDate.getTime() - now;
+        const qualyDiff = qualiDate.getTime() - now;
+
+        if (qualyDiff <= hourInMilisecond && qualyDiff > (hourInMilisecond - 15 * minuteInMilisecond)) {
+            sendF1Reminder("qualifying", race, listChat, qualiDate);
+        }
+
+        if (raceDiff <= hourInMilisecond && raceDiff > (hourInMilisecond - 15 * minuteInMilisecond)) {
+            sendF1Reminder("race", race, listChat, raceDate);
+        }
+    }
+}
+
+async function sendF1Reminder(sessionName, race, listChat, sessionDate, timeDiff = "1 jam") {
+    // 1. Ambil Nama Hari dalam Bahasa Indonesia & Timezone Jakarta
+    const dayName = sessionDate.toLocaleDateString("id-ID", { 
+        timeZone: "Asia/Jakarta", 
+        weekday: "long" 
+    });
+    
+    // 2. Ambil Jam dalam format HH:mm WIB
+    const timeString = sessionDate.toLocaleString("id-ID", { 
+        timeZone: "Asia/Jakarta", 
+        hour: "2-digit", 
+        minute: "2-digit",
+        hour12: false
+    });
+
+    const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+
+    const message = 
+        `📢 Teet teet teet~ *PENGINGAT BALAPAN F1* 🏎️💨\n` +
+        `*${timeDiff}* lagi sampe *${sessionName}* berikutnyaa!!\n\n` +
+        `*${race.name}*\n` +
+        `${race.circuit}\n` +
+        `${capitalizedDay}, ${timeString} WIB\n\n` +
+        `Siapin cemilan bos, jangan sampai kelewatan racenya! ✺◟(＾∇＾)◞✺`;
+
+    for (const chatId of listChat) {
+        try {
+            await _bot.telegram.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+            await new Promise(r => setTimeout(r, 500));
+        } catch (e) {
+            console.error(`Gagal kirim reminder ke ${chatId}:`, e.message);
+        }
+    }
+}
+
+async function nextRace(ctx) {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    
+    let tournaments = calendar_db.get('tournaments');
+    let seasonData = tournaments.find(t => t.year === currentYear);
+    
+    if (!seasonData) return ctx.reply("Kalender balapan belum tersedia untuk tahun ini.");
+
+    let nearestRace = null;
+    let minDiff = Infinity;
+
+    for (const race of seasonData.tournamentList) {
+        // Lewati jika data raceTime belum ada
+        if (!race.raceTime) continue;
+
+        const raceDate = new Date(race.raceTime);
+        const diff = raceDate.getTime() - currentDate.getTime();
+        
+        // Cari balapan yang akan datang (> 0) dengan selisih waktu terkecil
+        if (diff > 0 && diff < minDiff) {
+            minDiff = diff;
+            nearestRace = { ...race, sessionTime: raceDate };
+        }
+    }
+
+    if (nearestRace) {
+        const remainingTimeText = formatDuration(minDiff); 
+        // Langsung panggil reminder dengan label "Balapan Utama 🏁"
+        sendF1Reminder("race", nearestRace, [ctx.chat.id], nearestRace.sessionTime, remainingTimeText);
+    } else {
+        ctx.reply("Musim balap tahun ini sudah selesai! Sampai jumpa di musim depan. 🏎️👋");
+    }
+}
+
+/**
+ * Helper sederhana untuk mengubah milidetik ke teks (Jam/Hari)
+ */
+function formatDuration(ms) {
+    const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+    const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+    const minutes = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+
+    if (days > 0) return `${days} hari ${hours} jam`;
+    if (hours > 0) return `${hours} jam ${minutes} menit`;
+    return `${minutes} menit`;
 }
 
 function setupF1Bot(bot) {
@@ -477,5 +588,6 @@ module.exports = {
     subscribeF1,
     setupF1Bot,
     sendLastF1Result,
-    sendLastF1Qualifying
+    sendLastF1Qualifying,
+    nextRace
 };
