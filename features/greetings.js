@@ -35,10 +35,10 @@ function help(ctx) {
     `/hasilbadminton - hasil pertandingan badminton hari ini\n` +
     `/hasilbadmintonindonesia - hasil pertandingan badminton pemain Indonesia hari ini\n` +
     `/subscribebadminton - subscribe hasil pertandingan badminton pemain Indonesia\n` +
-    `/raceupdate - subscribe hasil race Formula 1` +
-    `/lastrace - dapetin hasil race Formula 1 terakhir` +
-    `/lastqualifying - dapetin hasil kualifikasi Formula 1 terakhir` +
-    `/nextrace - balapan Formula 1 selanjutnya` +
+    `/raceupdate - subscribe hasil race Formula 1\n` +
+    `/lastrace - dapetin hasil race Formula 1 terakhir\n` +
+    `/lastqualifying - dapetin hasil kualifikasi Formula 1 terakhir\n` +
+    `/nextrace - balapan Formula 1 selanjutnya\n` +
     `/help - this\n\n` +
 
     `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`
