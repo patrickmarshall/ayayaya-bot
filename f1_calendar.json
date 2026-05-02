@@ -37,28 +37,6 @@
                     "link": "https://www.formula1.com/en/results/2026/races/1281/japan/race-result"
                 },
                 {
-                    "name": "Bahrain Grand Prix",
-                    "circuit": "Bahrain International Circuit, Sakhir",
-                    "startDate": "2026-04-10",
-                    "endDate": "2026-04-12",
-                    "qualyTime": "2026-04-11T23:00:00+07:00",
-                    "raceTime": "2026-04-12T22:00:00+07:00",
-                    "id": 1282,
-                    "country": "bahrain",
-                    "link": "https://www.formula1.com/en/results/2026/races/1282/bahrain/race-result"
-                },
-                {
-                    "name": "Saudi Arabian Grand Prix",
-                    "circuit": "Jeddah Corniche Circuit, Jeddah",
-                    "startDate": "2026-04-17",
-                    "endDate": "2026-04-19",
-                    "qualyTime": "2026-04-18T00:00:00+07:00",
-                    "raceTime": "2026-04-19T00:00:00+07:00",
-                    "id": 1283,
-                    "country": "saudi-arabia",
-                    "link": "https://www.formula1.com/en/results/2026/races/1283/saudi-arabia/race-result"
-                },
-                {
                     "name": "Miami Grand Prix",
                     "circuit": "Miami International Autodrome, Miami",
                     "startDate": "2026-05-01",
