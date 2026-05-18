@@ -14,13 +14,13 @@ function greetings(ctx) {
 // mureminder - nyalain Manchester United match reminder
 // munextmatch - pertandingan Manchester United terdekat
 // mulastmatch - hasil pertandingan terbaru Manchester United
+// worldcup - subscribe update & reminder Piala Dunia 2026
+// wcnextmatch - pertandingan selanjutnya dari tim yang kamu ikutin
 // randomhero - kalau kamu bingung mau pick apa pas main dota
 // raceupdate - subscribe hasil race Formula 1
 // lastrace - dapetin hasil race Formula 1 terakhir
 // lastqualifying - dapetin hasil kualifikasi Formula 1 terakhir
 // nextrace - balapan Formula 1 selanjutnya
-// worldcup - subscribe update & reminder Piala Dunia 2026
-// wcnextmatch - pertandingan selanjutnya dari tim yang kamu ikutin
 // playgame - dapatkan game game menarik
 // help - list command yang ada
 
@@ -30,13 +30,13 @@ function help(ctx) {
     `/mureminder - nyalain Manchester United match reminder\n` +
     `/munextmatch - pertandingan Manchester United terdekat\n` +
     `/mulastmatch - hasil pertandingan terbaru Manchester United\n` +
+    `/worldcup - subscribe update & reminder Piala Dunia 2026\n` +
+    `/wcnextmatch - pertandingan selanjutnya dari tim yang kamu ikutin\n` +
     `/randomhero - kalau kamu bingung mau pick apa pas main dota\n` +
     `/raceupdate - subscribe hasil race Formula 1\n` +
     `/lastrace - dapetin hasil race Formula 1 terakhir\n` +
     `/lastqualifying - dapetin hasil kualifikasi Formula 1 terakhir\n` +
     `/nextrace - balapan Formula 1 selanjutnya\n` +
-    `/worldcup - subscribe update & reminder Piala Dunia 2026\n` +
-    `/wcnextmatch - pertandingan selanjutnya dari tim yang kamu ikutin\n` +
     `/playgame - dapatkan game game menarik\n` +
     `/help - this\n\n` +
 
