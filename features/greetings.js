@@ -11,34 +11,33 @@ function greetings(ctx) {
 
 // pemudatersesat - quote keren dari agama pilihan anda
 // ayatharian - minta dikirimin ayat sesuai agama kamu di jam yang kamu pilih
-// reminder - nyalain Manchester United match reminder
-// nextfixture - pertandingan Manchester United terdekat
-// lastmatch - hasil pertandingan terbaru Manchester United
-// matchupdate - nyalain update hasil pertandingan Manchester United
-// playgame - dapatkan game game menarik
+// mureminder - nyalain Manchester United match reminder
+// munextmatch - pertandingan Manchester United terdekat
+// mulastmatch - hasil pertandingan terbaru Manchester United
 // randomhero - kalau kamu bingung mau pick apa pas main dota
 // raceupdate - subscribe hasil race Formula 1
 // lastrace - dapetin hasil race Formula 1 terakhir
 // lastqualifying - dapetin hasil kualifikasi Formula 1 terakhir
 // nextrace - balapan Formula 1 selanjutnya
+// worldcup - subscribe update & reminder Piala Dunia 2026
+// wcnextmatch - pertandingan selanjutnya dari tim yang kamu ikutin
+// playgame - dapatkan game game menarik
 // help - list command yang ada
 
 function help(ctx) {
     var text = `/pemudatersesat - quote keren dari agama pilihan anda\n` +
     `/ayatharian - minta dikirimin ayat sesuai agama kamu di jam yang kamu pilih\n` +
-    `/reminder - nyalain Manchester United match reminder\n` +
-    `/nextfixture - pertandingan Manchester United terdekat\n` +
-    `/playgame - dapatkan game game menarik\n` +
-    `/lastmatch - hasil pertandingan terbaru Manchester United\n`+
-    `/matchupdate - nyalain update hasil pertandingan Manchester United\n`+
+    `/mureminder - nyalain Manchester United match reminder\n` +
+    `/munextmatch - pertandingan Manchester United terdekat\n` +
+    `/mulastmatch - hasil pertandingan terbaru Manchester United\n` +
     `/randomhero - kalau kamu bingung mau pick apa pas main dota\n` +
-    `/hasilbadminton - hasil pertandingan badminton hari ini\n` +
-    `/hasilbadmintonindonesia - hasil pertandingan badminton pemain Indonesia hari ini\n` +
-    `/subscribebadminton - subscribe hasil pertandingan badminton pemain Indonesia\n` +
     `/raceupdate - subscribe hasil race Formula 1\n` +
     `/lastrace - dapetin hasil race Formula 1 terakhir\n` +
     `/lastqualifying - dapetin hasil kualifikasi Formula 1 terakhir\n` +
     `/nextrace - balapan Formula 1 selanjutnya\n` +
+    `/worldcup - subscribe update & reminder Piala Dunia 2026\n` +
+    `/wcnextmatch - pertandingan selanjutnya dari tim yang kamu ikutin\n` +
+    `/playgame - dapatkan game game menarik\n` +
     `/help - this\n\n` +
 
     `Kamu juga bisa kirim foto, video, gif, etc. nanti aku bakal kirim balik ke kalian`
