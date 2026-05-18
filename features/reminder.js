@@ -61,7 +61,6 @@ function checkDifferences(ctx = null, demand = false) {
 
     var match
 
-    sleep(2000)
     var diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
 
     if (diff <= 0) {

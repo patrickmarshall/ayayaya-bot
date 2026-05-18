@@ -170,7 +170,11 @@ function hindhu(ctx, id) {
 }
 
 // english -> change after comma to en.asad
-function moslem(ctx, id) {
+function moslem(ctx, id, retries = 3) {
+    if (retries <= 0) {
+        send(ctx, id, "Maaf ya kak, quote Al-Quran lagi error nih 😭 Coba lagi nanti ya!");
+        return;
+    }
     let rand = Math.floor(Math.random() * 6326) + 1;
     getData(`https://api.alquran.cloud/v1/ayah/${rand}/editions/quran-simple,id.indonesian`)
         .then(async data => {
@@ -184,12 +188,12 @@ function moslem(ctx, id) {
                 send(ctx, id, message);
             } catch (error) {
                 console.error("Error generating reflection:", error);
-                moslem(ctx, id)
+                moslem(ctx, id, retries - 1)
             }
         })
         .catch(error => {
             console.error("Error fetching Quran data:", error);
-            moslem(ctx, id)
+            moslem(ctx, id, retries - 1)
         });
 }
 

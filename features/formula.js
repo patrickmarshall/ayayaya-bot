@@ -174,9 +174,9 @@ function getCurrentF1Race() {
  */
 async function getF1RaceResult(year, meetingKey, country) {
     const url = `https://www.formula1.com/en/results/${year}/races/${meetingKey}/${country}/race-result`;
-
+    let browser;
     try {
-        const browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
             dumpio: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
@@ -187,17 +187,17 @@ async function getF1RaceResult(year, meetingKey, country) {
             'accept-language': 'en-US,en;q=0.9',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
         });
-        
+
         await page.goto(url, { waitUntil: 'networkidle2' });
         await page.waitForSelector('table tbody tr', { timeout: 5000 }).catch(() => {});
 
         const data = await page.content();
-        await browser.close();
-
         return parseF1Results(data);
     } catch (error) {
         console.error('Error fetching F1 results:', error);
         return [];
+    } finally {
+        if (browser) await browser.close();
     }
 }
 
@@ -237,7 +237,7 @@ function parseF1Results(htmlContent) {
  * Format to Telegram string
  */
 function formatF1TelegramMessage(results, country) {
-    const capitalizedCountry = country.charAt(0).toUpperCase() + country.slice(1).replace('-', ' ');
+    const capitalizedCountry = country.charAt(0).toUpperCase() + country.slice(1).replaceAll('-', ' ');
 
     let message = `🏎️💨 Ngeeeng!! Hasil Balapan F1 ${capitalizedCountry} GP udah keluar nih!! 🏁🏆\n`;
     message += `Yuk cek siapa aja yang naik podium! 👇\n\n`;
@@ -305,9 +305,9 @@ async function sendLastF1Result(ctx) {
 
 async function getF1QualifyingResult(year, meetingKey, country) {
     const url = `https://www.formula1.com/en/results/${year}/races/${meetingKey}/${country}/qualifying`;
-
+    let browser;
     try {
-        const browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
             dumpio: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
@@ -318,17 +318,17 @@ async function getF1QualifyingResult(year, meetingKey, country) {
             'accept-language': 'en-US,en;q=0.9',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
         });
-        
+
         await page.goto(url, { waitUntil: 'networkidle2' });
         await page.waitForSelector('table tbody tr', { timeout: 5000 }).catch(() => {});
 
         const data = await page.content();
-        await browser.close();
-
         return parseF1Qualifying(data);
     } catch (error) {
         console.error('Error fetching F1 qualifying:', error);
         return [];
+    } finally {
+        if (browser) await browser.close();
     }
 }
 
@@ -366,7 +366,7 @@ function parseF1Qualifying(htmlContent) {
 }
 
 function formatF1QualifyingMessage(results, country) {
-    const capitalizedCountry = country.charAt(0).toUpperCase() + country.slice(1).replace('-', ' ');
+    const capitalizedCountry = country.charAt(0).toUpperCase() + country.slice(1).replaceAll('-', ' ');
 
     let message = `⏱️💨 Ngeeeng!! Hasil Kualifikasi F1 ${capitalizedCountry} GP udah keluar nih!! 🏁🔥\n`;
     message += `Siapa yang dapet Pole Position? 👇\n\n`;

@@ -187,19 +187,19 @@ bot.command('currentFlashdeal', ctx => {
 
 // Start of Badminton
 
+const BADMINTON_MAINTENANCE = "Fitur badminton lagi maintenance nih 🔧 Tunggu update selanjutnya ya!"
+
 bot.command('hasilbadmintonindonesia', ctx => {
-    hasilIndonesia(ctx)
+    ctx.reply(BADMINTON_MAINTENANCE)
 })
 
 bot.command('hasilbadminton', ctx => {
-    hasilSemua(ctx)
+    ctx.reply(BADMINTON_MAINTENANCE)
 })
 
 bot.command('subscribebadminton', ctx => {
-    subscribeBadminton(ctx)
+    ctx.reply(BADMINTON_MAINTENANCE)
 })
-
-setupBadmintonBot(bot)
 
 // End of Badminton
 
