@@ -17,6 +17,7 @@ const { getLastMatch, setupBot, register_result } = require("./features/result")
 const { currentFlashdeal, nextFlashdeal, insertComponent } = require("./features/tokopedia")
 const { hasilIndonesia, hasilSemua, setupBadmintonBot, subscribeBadminton } = require("./features/badminton")
 const { subscribeF1, setupF1Bot, sendLastF1Result, sendLastF1Qualifying, nextRace } = require("./features/formula")
+const { subscribeWC, wcNextMatch, handleWCToggle, handleWCSave, setupWCBot } = require("./features/worldcup")
 
 expressApp.get("/", (req, res) => {
     res.send("Working...")
@@ -59,7 +60,7 @@ bot.command('playgame', ctx => {
 
 updateFixtures(null, bot)
 
-bot.command('nextfixture', ctx => {
+bot.command('munextmatch', ctx => {
     checkDifferences(ctx, true)
 })
 
@@ -67,7 +68,7 @@ bot.command('updatefixtures', ctx => {
     updateFixtures(ctx, bot)
 })
 
-bot.command('reminder', ctx => {
+bot.command('mureminder', ctx => {
     register(ctx)
 })
 
@@ -78,7 +79,7 @@ bot.command('reminder', ctx => {
 setupBot(bot)
 setupF1Bot(bot)
 
-bot.command('lastmatch', ctx => {
+bot.command('mulastmatch', ctx => {
     getLastMatch(ctx)
 })
 
@@ -133,6 +134,15 @@ bot.action((action, ctx) => {
     else if (action.startsWith('dota_attr_')) {
         const attr = action.substring('dota_attr_'.length)
         randomhero2_by_attr(ctx, attr)
+    }
+
+    else if (action.startsWith('wc_t_')) {
+        const country = action.substring(5)
+        handleWCToggle(ctx, country)
+    }
+
+    else if (action === 'wc_save') {
+        handleWCSave(ctx)
     }
 
     // Process Query of Forwarder.js starts from else
@@ -222,6 +232,20 @@ bot.command('nextrace', (ctx) => {
 });
 
 // End of Formula 1
+
+// Start of World Cup
+
+setupWCBot(bot)
+
+bot.command('worldcup', ctx => {
+    subscribeWC(ctx)
+})
+
+bot.command('wcnextmatch', ctx => {
+    wcNextMatch(ctx)
+})
+
+// End of World Cup
 
 // Start of Forwarder
 
