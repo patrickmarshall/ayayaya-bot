@@ -1,8 +1,8 @@
-const fetch = require("node-fetch")
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 
-const { sleep, addZero, msToTime, daysToString, chat_db } = require("../core/helper")
+const { msToTime, chat_db } = require("../core/helper")
+const { getFixtures } = require("../core/mu-scraper")
 
 var copy_bot
 
@@ -15,6 +15,10 @@ cron.schedule('*/15 * * * *', () => {
     checkDifferences()
 })
 
+cron.schedule('0 */6 * * *', () => {
+    refreshFixtures()
+})
+
 const fixtures_db = new Database("./fixtures.json", {
     snapshots: {
         enabled: true,
@@ -23,44 +27,25 @@ const fixtures_db = new Database("./fixtures.json", {
     }
 })
 
-function getFixtures(token) {
-    let year = new Date().getFullYear();
-    new Promise(() => fetch(`https://cdnapi.manutd.com/api/v1/en/id/all/web/list/matchfixture/sid:2025~team:Team%20Level%2FFirst%20Team~isMU:true/0/60`, {
-        "headers": {
-            "accept": "application/json",
-            "accept-language": "en-US,en;q=0.9",
-            "sec-ch-ua": "\"Google Chrome\";v=\"93\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"93\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"macOS\"",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-site",
-            "x-api-key": `${token}`
-        },
-        "referrer": "https://www.manutd.com/",
-        "referrerPolicy": "strict-origin-when-cross-origin",
-        "body": null,
-        "method": "GET",
-        "mode": "cors"
-    })
-        .then((r) => r.json())
-        .then((r) => {
-            if (typeof r.FixtureListResponse.response !== "undefined") {
-                fixtures_db.set("list", r.FixtureListResponse.response.docs)
-            }
-        })
-        .catch(error => {
-            console.log(error)
-        })
-    )
+async function refreshFixtures() {
+    try {
+        const fixtures = await getFixtures()
+        if (fixtures.length > 0) {
+            fixtures_db.set("list", fixtures)
+            console.log(`[reminder] Fixtures updated: ${fixtures.length} matches`)
+        }
+    } catch (error) {
+        console.log("[reminder] Failed to refresh fixtures:", error.message)
+    }
 }
 
 function checkDifferences(ctx = null, demand = false) {
     listFixtures = fixtures_db.get("list")
     listChat = chat_db.get("list")
 
-    var match
+    if (!listFixtures || listFixtures.length === 0) return
 
+    var match
     var diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
 
     if (diff <= 0) {
@@ -69,47 +54,49 @@ function checkDifferences(ctx = null, demand = false) {
     }
 
     for (let i = 0; i < listFixtures.length; i++) {
-        if (listFixtures[i].resultdata_t.Period != "Postponed") {
+        if (listFixtures[i].matchStatus !== "Postponed") {
             match = listFixtures[i]
             diff = new Date(match.matchdate_tdt).getTime() - new Date().getTime()
             break
         }
     }
 
+    if (!match) return
+
     if (demand) {
         sendReminder(msToTime(diff), match, [ctx.chat.id])
     } else {
-        if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) { // 1 hour before
+        if (diff < hourInMilisecond && diff > (hourInMilisecond - 15 * minuteInMilisecond)) {
             sendReminder("1 jam", match, listChat)
-        } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) { // 12 hours before
+        } else if (diff < (12 * hourInMilisecond) && diff > (12 * hourInMilisecond - 15 * minuteInMilisecond)) {
             sendReminder("12 jam", match, listChat)
         }
     }
 }
 
-function sendReminder(time, fixture = listFixtures[0], _listChat) {
+function sendReminder(time, fixture, _listChat) {
     _listChat.forEach(chatId => {
         var stadium = fixture.venuename_t;
-        if (!fixture.venuename_t.toLowerCase().includes("stadium")) {
+        if (stadium && !stadium.toLowerCase().includes("stadium")) {
             stadium += " Stadium";
         }
-        
+
         const matchDate = new Date(fixture.matchdate_tdt);
-        const day = matchDate.toLocaleDateString("id-ID", { 
-            timeZone: "Asia/Jakarta", 
-            weekday: "long" 
+        const day = matchDate.toLocaleDateString("id-ID", {
+            timeZone: "Asia/Jakarta",
+            weekday: "long"
         });
-        
-        const timeString = matchDate.toLocaleString("en-US", { 
-            timeZone: "Asia/Jakarta", 
-            hour: "2-digit", 
-            minute: "2-digit", 
-            hourCycle: "h23" 
+
+        const timeString = matchDate.toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23"
         });
 
         var dates = "";
         const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
-        
+
         if (time.includes("hari")) {
             dates += `${capitalizedDay}, `;
         }
@@ -137,7 +124,7 @@ function register(ctx) {
             const index = array.indexOf(ctx.chat.id)
             array.splice(index, 1)
             chat_db.set("list", array)
-    
+
             ctx.reply("Gamau diingetin yaudah")
         }
     } else {
@@ -148,15 +135,11 @@ function register(ctx) {
 
 function updateFixtures(ctx, bot) {
     copy_bot = bot
-    var token = "RySFXMCM0K1cmM7CyQb4v5iREoFooHXV9CyeKK3o"
-    if (ctx?.update?.message?.text.split(' ')[1]) {
-        token = ctx.update.message.text.split(' ')[1]
-    }
-    getFixtures(token)
+    refreshFixtures()
 }
 
-module.exports = { 
+module.exports = {
     checkDifferences,
-    register, 
+    register,
     updateFixtures
 }
