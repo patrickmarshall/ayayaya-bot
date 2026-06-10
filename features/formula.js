@@ -32,17 +32,9 @@ var _bot;
  * Core automation logic
  */
 async function checkF1Race() {
-    const currentRace = getCurrentF1Race();
+    const currentRace = getUnbroadcastedF1Race("last_race_data");
 
-    // 1. If there's no race this weekend, do nothing
     if (!currentRace) return;
-
-    // 2. Check if we already broadcasted the results for THIS race
-    const lastSavedRace = f1_result_db.get("last_race_data");
-    if (lastSavedRace && lastSavedRace.id === currentRace.id) {
-        // Already sent to users, skip scraping to save server CPU!
-        return; 
-    }
 
     console.log(`[F1 Bot] Checking results for: ${currentRace.name}...`);
     
@@ -79,17 +71,9 @@ async function checkF1Race() {
 }
 
 async function checkF1Qualifying() {
-    const currentRace = getCurrentF1Race();
+    const currentRace = getUnbroadcastedF1Race("last_announced_qualy_id");
 
-    // 1. If there's no race this weekend, do nothing
     if (!currentRace) return;
-
-    // 2. Check if we already broadcasted the QUALIFYING for THIS race
-    const lastAnnouncedQualyId = f1_result_db.get("last_announced_qualy_id");
-    if (lastAnnouncedQualyId === currentRace.id) {
-        // Udah pernah broadcast kualifikasi minggu ini, stop biar hemat CPU!
-        return; 
-    }
 
     console.log(`[F1 Bot] Checking QUALIFYING results for: ${currentRace.name}...`);
     
@@ -144,25 +128,36 @@ function subscribeF1(ctx) {
 }
 
 /**
- * Finds if there is a race happening this weekend
+ * Finds the race that needs result checking — either one happening now,
+ * or one that was missed (past race whose results were never broadcast).
  */
-function getCurrentF1Race() {
+function getUnbroadcastedF1Race(dbKey) {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    
+
     let tournaments = calendar_db.get('tournaments');
     let seasonData = tournaments.find(t => t.year === currentYear);
-    
+
     if (!seasonData) return null;
 
+    const lastBroadcastId = dbKey === "last_race_data"
+        ? (f1_result_db.get("last_race_data") || {}).id
+        : f1_result_db.get("last_announced_qualy_id");
+
+    let passedLastBroadcast = !lastBroadcastId;
+
     for (const race of seasonData.tournamentList) {
-        // Start looking 2 hours BEFORE the race starts (to catch early prep)
-        // and keep looking until 12 hours AFTER the race ends.
-        const startTime = new Date(race.raceTime).getTime() - (2 * hourInMilisecond);
-        const endTime = new Date(race.raceTime).getTime() + (12 * hourInMilisecond);
+        const raceTime = new Date(race.raceTime).getTime();
         const now = currentDate.getTime();
 
-        if (now >= startTime && now <= endTime) {
+        if (now < raceTime - (2 * hourInMilisecond)) break;
+
+        if (race.id === lastBroadcastId) {
+            passedLastBroadcast = true;
+            continue;
+        }
+
+        if (passedLastBroadcast) {
             return race;
         }
     }
