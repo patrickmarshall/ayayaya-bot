@@ -1,8 +1,7 @@
 const cron = require('node-cron');
 const Database = require("easy-json-database");
 const { JSDOM } = require('jsdom');
-const puppeteer = require('puppeteer');
-const os = require('os');
+const fetch = require("node-fetch");
 const { chat_db } = require("../core/helper");
 
 // F1 Calendar Database (The JSON you provided)
@@ -164,35 +163,25 @@ function getUnbroadcastedF1Race(dbKey) {
     return null;
 }
 
-/**
- * Puppeteer Scraper
- */
-async function getF1RaceResult(year, meetingKey, country) {
-    const url = `https://www.formula1.com/en/results/${year}/races/${meetingKey}/${country}/race-result`;
-    let browser;
-    try {
-        browser = await puppeteer.launch({
-            dumpio: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
-
-        await page.setExtraHTTPHeaders({
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+async function fetchF1Page(url) {
+    const response = await fetch(url, {
+        headers: {
+            'accept': 'text/html',
             'accept-language': 'en-US,en;q=0.9',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
-        });
+        }
+    });
+    return response.text();
+}
 
-        await page.goto(url, { waitUntil: 'networkidle2' });
-        await page.waitForSelector('table tbody tr', { timeout: 5000 }).catch(() => {});
-
-        const data = await page.content();
-        return parseF1Results(data);
+async function getF1RaceResult(year, meetingKey, country) {
+    const url = `https://www.formula1.com/en/results/${year}/races/${meetingKey}/${country}/race-result`;
+    try {
+        const html = await fetchF1Page(url);
+        return parseF1Results(html);
     } catch (error) {
         console.error('Error fetching F1 results:', error);
         return [];
-    } finally {
-        if (browser) await browser.close();
     }
 }
 
@@ -300,30 +289,12 @@ async function sendLastF1Result(ctx) {
 
 async function getF1QualifyingResult(year, meetingKey, country) {
     const url = `https://www.formula1.com/en/results/${year}/races/${meetingKey}/${country}/qualifying`;
-    let browser;
     try {
-        browser = await puppeteer.launch({
-            dumpio: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
-
-        await page.setExtraHTTPHeaders({
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
-        });
-
-        await page.goto(url, { waitUntil: 'networkidle2' });
-        await page.waitForSelector('table tbody tr', { timeout: 5000 }).catch(() => {});
-
-        const data = await page.content();
-        return parseF1Qualifying(data);
+        const html = await fetchF1Page(url);
+        return parseF1Qualifying(html);
     } catch (error) {
         console.error('Error fetching F1 qualifying:', error);
         return [];
-    } finally {
-        if (browser) await browser.close();
     }
 }
 
