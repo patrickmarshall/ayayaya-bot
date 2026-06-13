@@ -145,11 +145,13 @@ function getUnbroadcastedF1Race(dbKey) {
 
     let passedLastBroadcast = !lastBroadcastId;
 
+    const useQualyTime = dbKey === "last_announced_qualy_id";
+
     for (const race of seasonData.tournamentList) {
-        const raceTime = new Date(race.raceTime).getTime();
+        const sessionTime = new Date(useQualyTime ? race.qualyTime : race.raceTime).getTime();
         const now = currentDate.getTime();
 
-        if (now < raceTime - (2 * hourInMilisecond)) break;
+        if (now < sessionTime - (2 * hourInMilisecond)) break;
 
         if (race.id === lastBroadcastId) {
             passedLastBroadcast = true;
