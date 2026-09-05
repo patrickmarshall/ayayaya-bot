@@ -2,7 +2,7 @@ const cron = require('node-cron')
 const Database = require("easy-json-database")
 
 const { msToTime, chat_db } = require("../core/helper")
-const { getFixtures } = require("../core/mu-scraper")
+const { getFixtures } = require("../core/mu-matches")
 
 var copy_bot
 
@@ -39,29 +39,27 @@ async function refreshFixtures() {
     }
 }
 
+function nextMatch(fixtures) {
+    const now = new Date().getTime()
+
+    return fixtures
+        .filter(fixture => fixture.matchStatus !== "Postponed" && fixture.matchStatus !== "Cancelled")
+        .filter(fixture => new Date(fixture.matchdate_tdt).getTime() > now)
+        .sort((a, b) => new Date(a.matchdate_tdt) - new Date(b.matchdate_tdt))[0]
+}
+
 function checkDifferences(ctx = null, demand = false) {
     listFixtures = fixtures_db.get("list")
     listChat = chat_db.get("list")
 
-    if (!listFixtures || listFixtures.length === 0) return
+    const match = listFixtures && listFixtures.length > 0 ? nextMatch(listFixtures) : null
 
-    var match
-    var diff = new Date(listFixtures[0].matchdate_tdt).getTime() - new Date().getTime()
-
-    if (diff <= 0) {
-        listFixtures.splice(0, 1)
-        fixtures_db.set("list", listFixtures)
+    if (!match) {
+        if (demand) ctx.reply("Jadwal pertandingan berikutnya belum ada nih, coba lagi nanti ya.")
+        return
     }
 
-    for (let i = 0; i < listFixtures.length; i++) {
-        if (listFixtures[i].matchStatus !== "Postponed") {
-            match = listFixtures[i]
-            diff = new Date(match.matchdate_tdt).getTime() - new Date().getTime()
-            break
-        }
-    }
-
-    if (!match) return
+    const diff = new Date(match.matchdate_tdt).getTime() - new Date().getTime()
 
     if (demand) {
         sendReminder(msToTime(diff), match, [ctx.chat.id])
@@ -76,11 +74,6 @@ function checkDifferences(ctx = null, demand = false) {
 
 function sendReminder(time, fixture, _listChat) {
     _listChat.forEach(chatId => {
-        var stadium = fixture.venuename_t;
-        if (stadium && !stadium.toLowerCase().includes("stadium")) {
-            stadium += " Stadium";
-        }
-
         const matchDate = new Date(fixture.matchdate_tdt);
         const day = matchDate.toLocaleDateString("id-ID", {
             timeZone: "Asia/Jakarta",
@@ -107,7 +100,7 @@ function sendReminder(time, fixture, _listChat) {
             `📢 Teet teet teet~ ${time} sebelum Manchester United main~\n\n` +
             `${fixture.competitionname_t}\n` +
             `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` +
-            `${stadium}\n` +
+            (fixture.venuename_t ? `${fixture.venuename_t}\n` : "") +
             dates
         );
     });
