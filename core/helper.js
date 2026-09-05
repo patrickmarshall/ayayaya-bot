@@ -62,6 +62,19 @@ function msToTime(s) {
   return result
 }
 
+// Telegram rejects a send when the user has blocked the bot, deleted the chat,
+// or the group has been upgraded to a supergroup (new chat id). Unhandled, that
+// rejection takes the whole process down mid-broadcast, so every chat after the
+// bad one never gets the message. Swallow it per chat and keep going.
+function sendToChats(bot, chatIds, message, options = undefined) {
+  return Promise.all(chatIds.map(chatId =>
+    bot.telegram.sendMessage(chatId, message, options).catch(error => {
+      const description = (error.response && error.response.description) || error.message
+      console.log(`[send] Skipped chat ${chatId}: ${description}`)
+    })
+  ))
+}
+
 function getCurrentDate() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
@@ -117,6 +130,7 @@ const chat_db = new Database("./chatlist.json", {
 
 module.exports = { 
   getCurrentDate,
+  sendToChats,
   getData, 
   sleep, 
   addZero, 

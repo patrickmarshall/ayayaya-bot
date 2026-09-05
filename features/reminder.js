@@ -1,7 +1,7 @@
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 
-const { msToTime, chat_db } = require("../core/helper")
+const { msToTime, chat_db, sendToChats } = require("../core/helper")
 const { getFixtures } = require("../core/mu-matches")
 
 var copy_bot
@@ -73,37 +73,36 @@ function checkDifferences(ctx = null, demand = false) {
 }
 
 function sendReminder(time, fixture, _listChat) {
-    _listChat.forEach(chatId => {
-        const matchDate = new Date(fixture.matchdate_tdt);
-        const day = matchDate.toLocaleDateString("id-ID", {
-            timeZone: "Asia/Jakarta",
-            weekday: "long"
-        });
-
-        const timeString = matchDate.toLocaleString("en-US", {
-            timeZone: "Asia/Jakarta",
-            hour: "2-digit",
-            minute: "2-digit",
-            hourCycle: "h23"
-        });
-
-        var dates = "";
-        const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
-
-        if (time.includes("hari")) {
-            dates += `${capitalizedDay}, `;
-        }
-        dates += `${timeString} WIB`;
-
-        copy_bot.telegram.sendMessage(
-            chatId,
-            `📢 Teet teet teet~ ${time} sebelum Manchester United main~\n\n` +
-            `${fixture.competitionname_t}\n` +
-            `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` +
-            (fixture.venuename_t ? `${fixture.venuename_t}\n` : "") +
-            dates
-        );
+    const matchDate = new Date(fixture.matchdate_tdt);
+    const day = matchDate.toLocaleDateString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        weekday: "long"
     });
+
+    const timeString = matchDate.toLocaleString("en-US", {
+        timeZone: "Asia/Jakarta",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+    });
+
+    var dates = "";
+    const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
+
+    if (time.includes("hari")) {
+        dates += `${capitalizedDay}, `;
+    }
+    dates += `${timeString} WIB`;
+
+    sendToChats(
+        copy_bot,
+        _listChat,
+        `📢 Teet teet teet~ ${time} sebelum Manchester United main~\n\n` +
+        `${fixture.competitionname_t}\n` +
+        `${fixture.hometeam_t} vs ${fixture.awayteam_t}\n` +
+        (fixture.venuename_t ? `${fixture.venuename_t}\n` : "") +
+        dates
+    );
 }
 
 function register(ctx) {

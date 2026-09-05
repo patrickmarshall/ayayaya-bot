@@ -1,6 +1,6 @@
 const cron = require('node-cron')
 const Database = require("easy-json-database")
-const { chat_db } = require("../core/helper")
+const { chat_db, sendToChats } = require("../core/helper")
 const { getResults } = require("../core/mu-matches")
 const { register } = require("./reminder")
 
@@ -95,7 +95,7 @@ function sendMessage(match, list_chat) {
         `${match.hometeam_t} vs ${match.awayteam_t}\n` +
         `${homeScore} - ${awayScore}\n\n${penaltyDetail}`
 
-    list_chat.forEach(chatId => _bot.telegram.sendMessage(chatId, message))
+    sendToChats(_bot, list_chat, message)
 }
 
 const register_result = register
