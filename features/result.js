@@ -1,11 +1,10 @@
 const cron = require('node-cron')
 const Database = require("easy-json-database")
 const { chat_db } = require("../core/helper")
-const { getResults } = require("../core/mu-scraper")
+const { getResults } = require("../core/mu-matches")
 const { register } = require("./reminder")
 
 var _bot
-var _ctx
 
 const result_db = new Database("./result.json", {
     snapshots: {
@@ -20,33 +19,37 @@ cron.schedule('*/15 * * * *', () => {
 })
 
 async function getLastMatch(ctx = null) {
-    _ctx = ctx
     try {
         const results = await getResults()
-        if (results.length > 0) {
-            compareMatch(results[0])
+
+        if (results.length === 0) {
+            console.log("[result] No finished match returned")
+            if (ctx) ctx.reply("Belum ada hasil pertandingan nih, coba lagi nanti ya.")
+            return
         }
+
+        compareMatch(results[0], ctx)
     } catch (error) {
         console.log("[result] Failed to fetch results:", error.message)
-        if (_ctx) _ctx.reply("Gagal ambil data hasil pertandingan, coba lagi nanti ya.")
+        if (ctx) ctx.reply("Gagal ambil data hasil pertandingan, coba lagi nanti ya.")
     }
 }
 
-function compareMatch(match) {
-    var lastMatch = result_db.get("list")
-    var listChat = chat_db.get("list")
+function compareMatch(match, ctx = null) {
+    if (ctx) {
+        sendMessage(match, [ctx.chat.id])
+        return
+    }
 
-    if (_ctx) {
-        sendMessage(match, [_ctx.update.message.chat.id])
-    } else {
-        if (lastMatch && lastMatch.matchdate_tdt === match.matchdate_tdt) {
-            // same match, no update
-        } else {
-            result_db.set("list", match)
-            if (listChat && listChat.length > 0) {
-                sendMessage(match, listChat)
-            }
-        }
+    const lastMatch = result_db.get("list")
+    if (lastMatch && lastMatch.id === match.id) return
+
+    result_db.set("list", match)
+
+    const listChat = chat_db.get("list")
+    if (listChat && listChat.length > 0) {
+        console.log(`[result] Broadcasting ${match.hometeam_t} vs ${match.awayteam_t} to ${listChat.length} chats`)
+        sendMessage(match, listChat)
     }
 }
 
@@ -56,7 +59,7 @@ function sendMessage(match, list_chat) {
     let result = ""
     let penaltyDetail = ""
 
-    const isMUHome = match.hometeamabbrevname_t === "MUN"
+    const isMUHome = match.muIsHome
 
     if (match.homePenaltyScore != null && match.awayPenaltyScore != null) {
         const homePenalties = match.homePenaltyScore
@@ -86,13 +89,10 @@ function sendMessage(match, list_chat) {
         }
     }
 
-    let stadium = match.venuename_t
-    if (stadium && !stadium.toLowerCase().includes("stadium")) {
-        stadium += " Stadium"
-    }
-
     const message = `${result}\n\n` +
-        `${match.competitionname_t}\n${stadium}\n${match.hometeam_t} vs ${match.awayteam_t}\n` +
+        `${match.competitionname_t}\n` +
+        (match.venuename_t ? `${match.venuename_t}\n` : "") +
+        `${match.hometeam_t} vs ${match.awayteam_t}\n` +
         `${homeScore} - ${awayScore}\n\n${penaltyDetail}`
 
     list_chat.forEach(chatId => _bot.telegram.sendMessage(chatId, message))
