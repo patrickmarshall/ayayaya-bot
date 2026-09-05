@@ -82,8 +82,9 @@ function getVenue(match) {
 function formatMatchTime(dateStr) {
     const date = new Date(dateStr);
     const day = date.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long' });
+    const dayMonth = date.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long' });
     const time = date.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false });
-    return `${day.charAt(0).toUpperCase() + day.slice(1)}, ${time} WIB`;
+    return `${day.charAt(0).toUpperCase() + day.slice(1)}, ${dayMonth}, ${time} WIB`;
 }
 
 function getSubscribersForMatch(homeAbbr, awayAbbr) {
